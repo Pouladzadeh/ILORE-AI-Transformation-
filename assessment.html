@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Request an AI Opportunity Assessment | ILORE</title>
+<meta name="description" content="Tell us about your organization, where you are with AI today, and the challenges you're trying to solve. We'll use this information to better understand your AI maturity and potential opportunities.">
+<meta property="og:title" content="Request an AI Opportunity Assessment | ILORE">
+<meta property="og:description" content="Four guided steps to help ILORE understand your organization's AI maturity, priorities and opportunities.">
+<meta property="og:type" content="website">
+<!-- Set an absolute canonical URL once the production domain is known:
+     <link rel="canonical" href="https://example.com/assessment.html"> -->
+<link rel="icon" href="img/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/assessment.css">
+<script>document.documentElement.className = "js";</script>
+</head>
+<body class="assessment-page">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="container">
+    <div class="site-header__inner">
+      <a class="wordmark" href="index.html"><img class="wordmark__img" src="img/logo.svg" alt="ILORE"></a>
+
+      <nav class="site-nav" aria-label="Primary">
+        <a class="site-nav__link" href="index.html#divisions">What We Do</a>
+        <a class="site-nav__link" href="index.html#academy">Academy</a>
+        <a class="site-nav__link" href="index.html#transform">Transform</a>
+        <a class="site-nav__link" href="index.html#discover">Discover</a>
+        <a class="site-nav__link" href="index.html#about">About</a>
+      </nav>
+
+      <div class="site-header__actions">
+        <a class="button button--primary button--compact" href="assessment.html" aria-current="page" data-cta="header-assess">AI Opportunity Assessment <span class="button__arrow" aria-hidden="true">&rarr;</span></a>
+      </div>
+
+      <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation">
+        <span class="menu-toggle__icon" aria-hidden="true"><span></span><span></span><span></span></span>
+      </button>
+    </div>
+
+    <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile" hidden>
+      <a class="mobile-menu__link" href="index.html#divisions">What We Do</a>
+      <a class="mobile-menu__link" href="index.html#academy">Academy</a>
+      <a class="mobile-menu__link" href="index.html#transform">Transform</a>
+      <a class="mobile-menu__link" href="index.html#discover">Discover</a>
+      <a class="mobile-menu__link" href="index.html#about">About</a>
+      <a class="button button--primary" href="assessment.html" aria-current="page" data-cta="mobile-assess">AI Opportunity Assessment</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="container assessment-layout">
+
+    <!-- Context -->
+    <div class="assessment-intro">
+      <p class="badge">Get started</p>
+      <h1 class="assessment-title">Request an AI Opportunity <span class="accent">Assessment</span></h1>
+      <p class="assessment-lede">Tell us about your organization, where you are with AI today, and the challenges you're trying to solve. We'll use this information to better understand your AI maturity and potential opportunities.</p>
+
+      <ul class="assessment-meta" aria-label="Assessment details">
+        <li><strong>4</strong><small>guided steps</small></li>
+        <li><strong>Saved</strong><small>progress on this device</small></li>
+      </ul>
+
+      <div class="intent-chip" id="intentChip">
+        <span class="intent-chip__key">You're asking about</span>
+        <span class="intent-chip__value" id="intentLabel"></span>
+        <button class="intent-chip__clear" type="button" id="intentClear" aria-label="Clear topic">&times;</button>
+      </div>
+
+      <div class="support-stack">
+        <div class="support-card">
+          <div class="support-card__head">
+            <span class="support-card__icon" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24" focusable="false">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                <circle cx="10" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </span>
+            <h2 class="support-card__title">What we'll explore</h2>
+          </div>
+          <p class="support-card__intro">Your organization's current AI maturity, priorities, challenges, and potential opportunities.</p>
+          <ul class="explore-list">
+            <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12.5 11 15.5 16 9.5"></polyline></svg>Current AI maturity</li>
+            <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12.5 11 15.5 16 9.5"></polyline></svg>Business priorities</li>
+            <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12.5 11 15.5 16 9.5"></polyline></svg>AI opportunities</li>
+            <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12.5 11 15.5 16 9.5"></polyline></svg>Key challenges</li>
+          </ul>
+
+          <div class="support-divider" role="presentation"></div>
+
+          <div class="support-card__head">
+            <span class="support-card__icon" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24" focusable="false">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+              </svg>
+            </span>
+            <h2 class="support-card__title">What happens next</h2>
+          </div>
+          <ol class="next-list">
+            <li>
+              <span class="next-list__number" aria-hidden="true">1</span>
+              <div>
+                <p class="next-list__title">Review</p>
+                <p>We review your organization, current AI activity, priorities, and challenges.</p>
+              </div>
+            </li>
+            <li>
+              <span class="next-list__number" aria-hidden="true">2</span>
+              <div>
+                <p class="next-list__title">Conversation</p>
+                <p>An ILORE expert connects with you to better understand your goals and opportunities.</p>
+              </div>
+            </li>
+            <li>
+              <span class="next-list__number" aria-hidden="true">3</span>
+              <div>
+                <p class="next-list__title">Next Steps</p>
+                <p>Together, we identify practical next steps based on your organization's AI readiness.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <p class="trust-note" id="privacy">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+          <span>Your responses are used only to prepare your readiness conversation.</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Workspace -->
+    <div>
+      <div class="form-card">
+        <form id="assessmentForm" novalidate>
+          <div class="honeypot" aria-hidden="true">
+            <label for="companyWebsite">Leave this field empty</label>
+            <input type="text" id="companyWebsite" name="company_website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="workspace-bar">
+            <span class="workspace-bar__label"><span class="workspace-bar__dot" aria-hidden="true"></span>AI opportunity workspace</span>
+            <span id="workspaceState">Step 1 of 4</span>
+          </div>
+
+          <div class="form-card__body">
+            <ol class="stepper">
+              <li class="stepper__item is-current" id="stepIndicator0"><span class="stepper__dot" aria-hidden="true">1</span><span class="stepper__label">Your organization</span></li>
+              <li class="stepper__item" id="stepIndicator1"><span class="stepper__line" aria-hidden="true"></span><span class="stepper__dot" aria-hidden="true">2</span><span class="stepper__label">Your challenge</span></li>
+              <li class="stepper__item" id="stepIndicator2"><span class="stepper__line" aria-hidden="true"></span><span class="stepper__dot" aria-hidden="true">3</span><span class="stepper__label">About you</span></li>
+              <li class="stepper__item" id="stepIndicator3"><span class="stepper__line" aria-hidden="true"></span><span class="stepper__dot" aria-hidden="true">4</span><span class="stepper__label">Review &amp; submit</span></li>
+            </ol>
+
+            <div class="progress"><span class="progress__count" id="progressCount">Step 1 / 4</span></div>
+            <div class="progress__bar" id="progressBar" role="progressbar" aria-label="Assessment progress" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1">
+              <span class="progress__fill" id="progressFill" style="width:25%"></span>
+            </div>
+
+            <p class="sr-only" id="formStatus" role="status" aria-live="polite"></p>
+
+            <!-- Step 1 — Your organization -->
+            <div class="step is-active" id="step0" role="group" aria-label="Step 1 of 4: Your organization" tabindex="-1">
+              <fieldset class="question-group" aria-describedby="error-industry">
+                <legend class="question">Which sector are you in?</legend>
+                <div class="option-grid">
+                  <label class="option">
+                    <span class="option__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" focusable="false"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></span>
+                    Healthcare
+                    <input type="radio" name="industry" value="Healthcare">
+                    <span class="option__ring" aria-hidden="true"></span>
+                  </label>
+                  <label class="option">
+                    <span class="option__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" focusable="false"><path d="M22 10 12 5 2 10l10 5 10-5z"></path><path d="M6 12.5V17c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5"></path></svg></span>
+                    Education
+                    <input type="radio" name="industry" value="Education">
+                    <span class="option__ring" aria-hidden="true"></span>
+                  </label>
+                  <label class="option">
+                    <span class="option__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" focusable="false"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"></path></svg></span>
+                    Government / public sector
+                    <input type="radio" name="industry" value="Government / public sector">
+                    <span class="option__ring" aria-hidden="true"></span>
+                  </label>
+                  <label class="option">
+                    <span class="option__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" focusable="false"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></span>
+                    Professional services
+                    <input type="radio" name="industry" value="Professional services">
+                    <span class="option__ring" aria-hidden="true"></span>
+                  </label>
+                  <label class="option">
+                    <span class="option__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" focusable="false"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"></circle><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"></circle></svg></span>
+                    Another industry
+                    <input type="radio" name="industry" value="Another industry">
+                    <span class="option__ring" aria-hidden="true"></span>
+                  </label>
+                </div>
+                <p class="field-error" id="error-industry" role="alert">Please choose your sector so we can prepare relevant examples.</p>
+
+                <div class="conditional field field--spaced" id="industryOtherField">
+                  <label class="field__label" for="industryOther">Which industry?</label>
+                  <input type="text" id="industryOther" aria-describedby="error-industryOther" placeholder="e.g. Manufacturing, logistics, non-profit…">
+                  <p class="field-error" id="error-industryOther" role="alert">Please tell us your industry.</p>
+                </div>
+              </fieldset>
+
+              <fieldset class="question-group" aria-describedby="error-size">
+                <legend class="question">How large is your organization?</legend>
+                <div class="option-row">
+                  <label class="option option--pill"><input type="radio" name="size" value="Under 50">Under 50</label>
+                  <label class="option option--pill"><input type="radio" name="size" value="50–250">50–250</label>
+                  <label class="option option--pill"><input type="radio" name="size" value="250–1,000">250–1,000</label>
+                  <label class="option option--pill"><input type="radio" name="size" value="1,000–2,000">1,000–2,000</label>
+                  <label class="option option--pill"><input type="radio" name="size" value="Over 2,000">Over 2,000</label>
+                </div>
+                <p class="field-error" id="error-size" role="alert">Please select your organization's size.</p>
+              </fieldset>
+
+              <fieldset class="question-group" aria-describedby="error-stage">
+                <legend class="question">Where is your organization with AI today?</legend>
+                <div class="option-grid">
+                  <label class="option">
+                    <span class="option__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
+                    We haven't started
+                    <input type="radio" name="stage" value="We haven't started">
+                    <span class="option__ring" aria-hidden="true"></span>
+                  </label>
+                  <label class="option">
+                    <span class="option__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" focusable="false"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path><circle cx="10" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
+                    Individuals are experimenting informally
+                    <input type="radio" name="stage" value="Individuals are experimenting informally">
+                    <span class="option__ring" aria-hidden="true"></span>
+                  </label>
+                  <label class="option">
+                    <span class="option__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" focusable="false"><path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2-.1-2.8-.8-.7-2.1-.7-2.9-.2z"></path><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path></svg></span>
+                    We have active pilots underway
+                    <input type="radio" name="stage" value="We have active pilots underway">
+                    <span class="option__ring" aria-hidden="true"></span>
+                  </label>
+                  <label class="option">
+                    <span class="option__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" focusable="false"><path d="M4 20v-6M10 20V10M16 20V4M22 20H2"></path></svg></span>
+                    We're scaling what already works
+                    <input type="radio" name="stage" value="We're scaling what already works">
+                    <span class="option__ring" aria-hidden="true"></span>
+                  </label>
+                </div>
+                <p class="field-error" id="error-stage" role="alert">Please tell us where you are today — there's no wrong answer.</p>
+              </fieldset>
+            </div>
+
+            <!-- Step 2 — Your challenge -->
+            <div class="step step--challenge" id="step1" role="group" aria-label="Step 2 of 4: Your challenge" tabindex="-1">
+              <fieldset class="question-group" aria-describedby="error-challenge">
+                <legend class="question question--tight">What's your biggest AI challenge right now?</legend>
+                <p class="question-note" id="challengeNote">Since you're early in the journey, these are the challenges we hear most.</p>
+
+                <div class="option-grid conditional is-visible" id="challengeEarly">
+                  <label class="option"><input type="radio" name="challengeEarly" value="We don't know where to begin">We don't know where to begin<span class="option__ring" aria-hidden="true"></span></label>
+                  <label class="option"><input type="radio" name="challengeEarly" value="Our people need AI knowledge and confidence">Our people need AI knowledge and confidence<span class="option__ring" aria-hidden="true"></span></label>
+                  <label class="option"><input type="radio" name="challengeEarly" value="We can't tell which use cases are worth pursuing">We can't tell which use cases are worth pursuing<span class="option__ring" aria-hidden="true"></span></label>
+                  <label class="option"><input type="radio" name="challengeEarly" value="Governance, privacy, or security concerns">Governance, privacy, or security concerns<span class="option__ring" aria-hidden="true"></span></label>
+                </div>
+
+                <div class="option-grid conditional" id="challengeLate">
+                  <label class="option"><input type="radio" name="challengeLate" value="Pilots aren't creating measurable value">Pilots aren't creating measurable value<span class="option__ring" aria-hidden="true"></span></label>
+                  <label class="option"><input type="radio" name="challengeLate" value="Adoption is uneven across teams">Adoption is uneven across teams<span class="option__ring" aria-hidden="true"></span></label>
+                  <label class="option"><input type="radio" name="challengeLate" value="Manual processes we know we should automate">Manual processes we know we should automate<span class="option__ring" aria-hidden="true"></span></label>
+                  <label class="option"><input type="radio" name="challengeLate" value="We're hard to find in AI-powered search">We're hard to find in AI-powered search<span class="option__ring" aria-hidden="true"></span></label>
+                </div>
+
+                <p class="field-error" id="error-challenge" role="alert">Please pick the challenge closest to yours — you can add nuance below.</p>
+              </fieldset>
+
+              <div class="field">
+                <label class="field__label" for="challengeDetail">Anything else we should know? <span class="field__optional">(optional)</span></label>
+                <textarea id="challengeDetail" rows="3" placeholder="Share any specific goals, challenges, timelines, or context that will help us prepare for our conversation."></textarea>
+              </div>
+            </div>
+
+            <!-- Step 3 — About you -->
+            <div class="step step--about" id="step2" role="group" aria-label="Step 3 of 4: About you" tabindex="-1">
+              <div class="two-col">
+                <div class="field">
+                  <label class="field__label" for="fullName">Full name</label>
+                  <input type="text" id="fullName" autocomplete="name" aria-describedby="error-name" placeholder="First and last name">
+                  <p class="field-error" id="error-name" role="alert">Please enter your name.</p>
+                </div>
+                <div class="field">
+                  <label class="field__label" for="email">Work email</label>
+                  <input type="email" id="email" autocomplete="email" aria-describedby="error-email" placeholder="you@organization.ca">
+                  <p class="field-error" id="error-email" role="alert">That doesn't look like a valid email address.</p>
+                </div>
+                <div class="field">
+                  <label class="field__label" for="organization">Organization</label>
+                  <input type="text" id="organization" autocomplete="organization" aria-describedby="error-org" placeholder="Organization name">
+                  <p class="field-error" id="error-org" role="alert">Please enter your organization's name.</p>
+                </div>
+                <div class="field">
+                  <label class="field__label" for="jobTitle">Job title <span class="field__optional">(optional)</span></label>
+                  <input type="text" id="jobTitle" autocomplete="organization-title" placeholder="e.g. Director of Operations">
+                </div>
+              </div>
+
+              <fieldset class="question-group">
+                <legend class="question">How would you prefer we follow up?</legend>
+                <div class="option-row">
+                  <label class="option option--pill"><input type="radio" name="contact" value="Email">Email</label>
+                  <label class="option option--pill"><input type="radio" name="contact" value="Phone or video call">Phone or video call</label>
+                  <label class="option option--pill"><input type="radio" name="contact" value="Either works">Either works</label>
+                </div>
+
+                <div class="conditional field field--phone" id="phoneField">
+                  <label class="field__label" for="phone">Phone number</label>
+                  <input type="tel" id="phone" autocomplete="tel" aria-describedby="error-phone" placeholder="+1 (___) ___-____">
+                  <p class="field-error" id="error-phone" role="alert">Please add a number we can reach you at.</p>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- Step 4 — Review & submit -->
+            <div class="step" id="step3" role="group" aria-label="Step 4 of 4: Review and submit" tabindex="-1">
+              <div class="review" id="reviewBox"></div>
+
+              <div>
+                <label class="consent">
+                  <input type="checkbox" id="consent" aria-describedby="error-consent">
+                  <span>I agree that ILORE may use these details to prepare and follow up about an AI readiness conversation — nothing more. <a href="#privacy">How we handle your information</a></span>
+                </label>
+                <p class="field-error" id="error-consent" role="alert">Please confirm you're comfortable with us following up before submitting.</p>
+                <p class="field-error" id="error-submit" role="alert">Something went wrong sending your request. Your answers are still saved on this device — please try again.</p>
+              </div>
+            </div>
+
+            <div class="form-controls">
+              <button class="button button--secondary is-invisible" type="button" id="backButton">Back</button>
+              <span class="save-note" id="saveNote">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                Your progress is saved on this device
+              </span>
+              <button class="button button--primary" type="button" id="nextButton">Continue <span class="button__arrow" aria-hidden="true">&rarr;</span></button>
+              <button class="button button--primary" type="submit" id="submitButton" hidden>Submit Assessment Request</button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Submitted -->
+        <div class="outcome" id="successPanel">
+          <div class="outcome__tick" aria-hidden="true">&#10003;</div>
+          <h2 class="outcome__title">Thank You — We've Received Your Request</h2>
+          <p class="outcome__lede">A member of the ILORE team will review your responses and reach out using your preferred contact method.</p>
+          <p class="eyebrow">What happens next</p>
+          <div class="next-steps">
+            <div class="next-steps__row"><span class="next-steps__index">01</span><span><strong>Review.</strong> We review your organization, current AI activity, priorities, and challenges.</span></div>
+            <div class="next-steps__row"><span class="next-steps__index">02</span><span><strong>Conversation.</strong> An ILORE expert connects with you to better understand your goals and opportunities.</span></div>
+            <div class="next-steps__row"><span class="next-steps__index">03</span><span><strong>Next Steps.</strong> Together, we identify practical next steps based on your organization's AI readiness.</span></div>
+          </div>
+          <div class="outcome__actions">
+            <a class="button button--secondary" href="index.html">Back to Homepage</a>
+          </div>
+        </div>
+
+        <!-- No delivery endpoint configured -->
+        <div class="outcome" id="pendingPanel">
+          <h2 class="outcome__title">Submission isn't connected yet</h2>
+          <p class="outcome__lede">This form isn't linked to a live inbox yet, so nothing was sent. Your answers are saved on this device and will be here when you return.</p>
+          <p class="outcome__hint">Site team: set <code>SUBMIT_ENDPOINT</code> in <code>assets/js/assessment.js</code> to activate delivery.</p>
+          <div class="outcome__actions">
+            <button class="button button--secondary" type="button" id="pendingEdit">Back to my answers</button>
+            <a class="button button--secondary" href="index.html">Back to Homepage</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div>
+        <a class="wordmark" href="index.html"><img class="wordmark__img" src="img/logo.svg" alt="ILORE"></a>
+        <p class="site-footer__tagline">AI transformation that creates measurable business value.</p>
+      </div>
+
+      <nav class="footer-column" aria-label="What we do">
+        <p class="footer-column__title">What We Do</p>
+        <a href="index.html#academy">Academy</a>
+        <a href="index.html#transform">Transform</a>
+        <a href="index.html#discover">Discover</a>
+        <a href="assessment.html">AI Opportunity Assessment</a>
+      </nav>
+
+      <nav class="footer-column" aria-label="Company">
+        <p class="footer-column__title">Company</p>
+        <a href="index.html#about">About ILORE</a>
+        <a href="assessment.html">Contact</a>
+      </nav>
+    </div>
+
+    <div class="site-footer__base">
+      <span>&copy; 2026 ILORE. All rights reserved.</span>
+      <span>Academy &middot; Transform &middot; Discover</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js" defer></script>
+<script src="assets/js/assessment.js" defer></script>
+</body>
+</html>

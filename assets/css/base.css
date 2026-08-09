@@ -1,0 +1,366 @@
+/* ==========================================================================
+   ILORE — Foundations
+   Design tokens, reset, base typography and layout primitives.
+   Loaded first on every page.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Design tokens
+   Values are derived from the approved ILORE design: a near-white neutral
+   base, dark charcoal type and a restrained burnt-orange accent.
+   -------------------------------------------------------------------------- */
+:root {
+  /* Brand accent */
+  --color-accent: #a84622;
+  --color-accent-hover: #8f3819;
+  --color-accent-active: #782f16;
+  --color-accent-ink: #7e351c;      /* accent text on light chips */
+  --color-accent-soft: #b96643;     /* markers on dark surfaces */
+  --color-accent-line: #d99879;     /* rules and eyebrows on dark surfaces */
+
+  /* Text */
+  --color-text-primary: #17181d;
+  --color-text-secondary: #5e6069;
+  --color-text-muted: #92949d;
+  --color-text-nav: #4a4c54;
+
+  /* Surfaces */
+  --color-background: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-muted: #fafafb;
+  --color-surface-sunken: #f6f6f8;
+  --color-surface-tint: #f3f3f5;
+  --color-surface-dark: #1b1c21;
+  --color-surface-dark-raised: #1f2025;
+
+  /* Text on dark surfaces */
+  --color-on-dark: #ffffff;
+  --color-on-dark-secondary: rgba(255, 255, 255, 0.56);
+  --color-on-dark-tertiary: rgba(255, 255, 255, 0.38);
+  --color-on-dark-body: rgba(255, 255, 255, 0.82);
+  --color-on-dark-border: rgba(255, 255, 255, 0.11);
+  --color-on-dark-divider: rgba(255, 255, 255, 0.08);
+
+  /* Lines */
+  --color-border: #e8e8eb;
+  --color-border-strong: #d9dade;
+  --color-border-accent: #ddb9a9;
+
+  /* Feedback */
+  --color-danger: #c2330f;
+
+  /* Typography */
+  --font-sans: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-mono: "Spline Sans Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --text-body: 15.5px;
+  --leading-body: 1.65;
+
+  /* Layout
+     The container is border-box, so its width includes the gutters:
+     1280px of content + 2 x 52px padding = 1384px. */
+  --container-width: 1384px;
+  --container-padding: 52px;
+  --header-height: 72px;
+  --section-space: 104px;
+
+  /* Radii */
+  --radius-xs: 9px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-card: 18px;
+  --radius-pill: 999px;
+
+  /* Shadows — resting elevation for panels and the assessment card;
+     hover elevation lives in --shadow-hover below. */
+  --shadow-panel: 0 18px 54px rgba(28, 29, 35, 0.07);
+  --shadow-raised: 0 28px 80px rgba(24, 25, 30, 0.1);
+
+  /* Interaction
+     One hover language sitewide. An interactive card lifts by --hover-lift
+     with --shadow-hover and a warm border; an interactive row tints with
+     --color-hover-soft and never moves; rows on dark surfaces use
+     --color-hover-on-dark. Selected states must always read stronger than
+     hover. */
+  --hover-duration: 0.22s;
+  --hover-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --transition-hover: var(--hover-duration) var(--hover-ease);
+  --hover-lift: -3px;
+  --shadow-hover: 0 1px 2px rgba(18, 19, 24, 0.03), 0 14px 36px rgba(18, 19, 24, 0.08);
+  --color-hover-soft: #faf7f5;
+  --color-hover-border: var(--color-border-accent);
+  --color-hover-on-dark: rgba(255, 255, 255, 0.04);
+
+  /* Motion — micro colour fades run a touch quicker than surface hovers but
+     share the same easing, so nothing feels imported from another system. */
+  --transition-fast: 0.18s var(--hover-ease);
+  --transition-base: var(--transition-hover);
+}
+
+/* Container padding tightens before the layout reaches phone widths. */
+@media (max-width: 820px) {
+  :root {
+    --container-padding: 24px;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --section-space: 64px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reset / normalise
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Keep anchor targets clear of the sticky header. */
+  scroll-padding-top: calc(var(--header-height) + 16px);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Belt and braces against accidental sideways scroll on small screens. */
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: -0.025em;
+}
+
+p {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+/* Inherit typography, but leave line-height to the UA so control heights
+   stay driven by their own padding and min-height. */
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Focus
+   A single visible focus treatment for every interactive element.
+   -------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Motion preferences
+   Anything decorative collapses to a stable, static presentation.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Layout primitives
+   -------------------------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+.section {
+  padding-block: var(--section-space);
+}
+
+.section--sunken {
+  background: var(--color-surface-sunken);
+  border-block: 1px solid var(--color-border);
+}
+
+.section--flush-top {
+  padding-top: 0;
+}
+
+/* Section heading block: eyebrow to the left, headline to the right. */
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 40px;
+  margin-bottom: 42px;
+}
+
+.section-head__title {
+  margin-top: 14px;
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  line-height: 1.22;
+}
+
+/* Stack the eyebrow above the headline once there is no room beside it. */
+@media (max-width: 860px) {
+  .section-head {
+    display: block;
+    margin-bottom: 32px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Shared type treatments
+   -------------------------------------------------------------------------- */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.eyebrow--on-dark {
+  color: var(--color-accent-line);
+}
+
+/* Short rule beneath the eyebrow, used in the About section. */
+.eyebrow--ruled::after {
+  content: "";
+  display: block;
+  width: 34px;
+  height: 1px;
+  margin-top: 12px;
+  background: var(--color-accent-line);
+}
+
+.accent {
+  color: var(--color-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Utilities
+   -------------------------------------------------------------------------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Keeps an element's space reserved while hiding it from sight, from the
+   accessibility tree and from the tab order. */
+.is-invisible {
+  visibility: hidden;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: -9999px;
+  z-index: 60;
+  padding: 12px 20px;
+  background: var(--color-accent);
+  color: var(--color-on-dark);
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  left: 0;
+  color: var(--color-on-dark);
+}
+
+/* Scroll reveal. Content is visible by default; it is only hidden after
+   main.js has added `reveal-ready`, which it does exclusively when it can
+   observe and reveal the elements again. If the script never loads, or the
+   browser lacks IntersectionObserver, nothing is ever hidden. */
+.reveal-ready .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal-ready .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-ready .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -1,0 +1,1262 @@
+/* ==========================================================================
+   ILORE — Homepage
+   Hero, purpose band, divisions, the three division sections, about and
+   the closing CTA band.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+.hero {
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-border);
+  background:
+    radial-gradient(circle at 84% 16%, rgba(168, 70, 34, 0.08), transparent 24%),
+    linear-gradient(180deg, #ffffff 0%, #fbfbfc 100%);
+}
+
+.hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.93fr) minmax(520px, 1.07fr);
+  gap: 72px;
+  align-items: center;
+  padding-block: 88px 94px;
+}
+
+.hero__title {
+  max-width: 11.5ch;
+  margin-top: 26px;
+  font-size: clamp(3.35rem, 5.2vw, 4.9rem);
+  line-height: 0.99;
+  letter-spacing: -0.032em;
+}
+
+.hero__lede {
+  max-width: 50ch;
+  margin-top: 24px;
+  font-size: 17px;
+  line-height: 1.72;
+  color: #62646c;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 36px;
+}
+
+.hero__path {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 28px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  color: #7e8088;
+}
+
+.hero__path-dot {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Hero visual — the transformation signal.
+   Three upright division cards hang off one connector line and the line ends
+   at the measurable-value chip, so the diagram reads as a single path.
+   `min-width: 0` keeps the grid column from being widened by its contents.
+   -------------------------------------------------------------------------- */
+.hero__visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  /* Heights include the block padding below (border-box). */
+  min-height: 560px;
+  padding: 34px 26px 24px;
+}
+
+.hero__aura {
+  position: absolute;
+  inset: 10% 2% 8% 10%;
+  pointer-events: none;
+  filter: blur(4px);
+  background:
+    radial-gradient(circle at 62% 45%, rgba(168, 70, 34, 0.13), transparent 35%),
+    radial-gradient(circle at 48% 58%, rgba(28, 29, 35, 0.08), transparent 48%);
+}
+
+/* The signal group.
+   Geometry is driven by two custom properties so the pulse keyframes stay
+   correct at every breakpoint:
+   --rail-x  x of the connector line, which is also the chip dot's centre
+             (1px chip border + 14px chip padding + half of the 7px dot).
+   --node-y  y of a card's node, measured from that card's top edge.
+   The chip carries an extra margin-top of (--node-y - half the chip height),
+   which makes the Discover-node -> chip-dot distance equal to the node pitch.
+   That is what lets the pulse stop on exact thirds whatever the cards weigh. */
+.signal {
+  --rail-x: 18.5px;
+  --node-y: 34px;
+  --signal-gap: 18px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--signal-gap);
+  transition: transform var(--transition-fast);
+}
+
+/* Same 1px rule as the Discover panel's connector. */
+.signal__rail {
+  position: absolute;
+  top: var(--node-y);
+  bottom: 18px;
+  left: var(--rail-x);
+  width: 0;
+  border-left: 1px solid var(--color-border-strong);
+}
+
+/* The travelling element spans the rail and carries the dot at its top edge,
+   so translateY percentages resolve against the rail's length and the whole
+   animation stays on transform + opacity (no per-frame layout). */
+.signal__pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  animation: signal-travel 6s var(--hover-ease) infinite;
+}
+
+.signal__pulse::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  transform: translate(-50%, -50%);
+}
+
+/* Academy -> Transform -> Discover -> chip, dwelling at each node. */
+@keyframes signal-travel {
+  0% { transform: translateY(0); opacity: 0; }
+  4% { transform: translateY(0); opacity: 1; }
+  20% { transform: translateY(0); opacity: 1; }
+  33.33% { transform: translateY(33.33%); opacity: 1; }
+  49% { transform: translateY(33.33%); opacity: 1; }
+  66.67% { transform: translateY(66.67%); opacity: 1; }
+  82% { transform: translateY(66.67%); opacity: 1; }
+  96% { transform: translateY(100%); opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+.signal__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--signal-gap);
+}
+
+.signal__step {
+  position: relative;
+  /* Clears the rail lane so the line stays visible beside the cards. */
+  padding-left: 40px;
+}
+
+/* The card's node, sitting on the rail. */
+.signal__step::before {
+  content: "";
+  position: absolute;
+  top: var(--node-y);
+  left: var(--rail-x);
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--color-surface);
+  transform: translate(-50%, -50%);
+}
+
+/* An interactive row, not a card that lifts: tints and never moves.
+   One column: the phase word carries the card, and the rail beside the cards
+   carries their order, so no numbering is needed. */
+.signal-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 9px;
+  min-height: 112px;
+  padding: 20px 22px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-panel);
+  text-decoration: none;
+  transition: background var(--transition-hover), border-color var(--transition-hover);
+}
+
+.signal-card__main {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* The phase label now leads the card. Reserving the width of the longest of
+   the three words keeps the division names on one left edge across the cards,
+   which is the alignment the removed index column used to provide. */
+.signal-card__phase {
+  min-width: 62px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.signal-card__name {
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+}
+
+.signal-card__role {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.signal-card__detail {
+  align-self: end;
+  overflow: hidden;
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .signal-card:hover {
+    background: var(--color-hover-soft);
+    border-color: var(--color-hover-border);
+  }
+
+  .signal-card:hover .signal-card__detail {
+    color: var(--color-text-secondary);
+  }
+
+  /* Hold the signal still while someone is reading a card. */
+  .signal:hover .signal__pulse,
+  .signal:hover .hero__chip-dot {
+    animation-play-state: paused;
+  }
+}
+
+/* End of the line. The extra margin is the thirds offset described above. */
+.hero__chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 36px;
+  max-width: 100%;
+  margin-top: calc(var(--node-y) - 18px);
+  padding: 10px 14px;
+  border: 1px solid #dcdde1;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 30px rgba(22, 23, 28, 0.07);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #3e4047;
+}
+
+.hero__chip-dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 5px rgba(168, 70, 34, 0.08);
+  /* Same 6s clock as the pulse, so the ring opens as the pulse lands. */
+  animation: signal-arrive 6s var(--hover-ease) infinite;
+}
+
+@keyframes signal-arrive {
+  0%, 88% { box-shadow: 0 0 0 5px rgba(168, 70, 34, 0.08); }
+  96% { box-shadow: 0 0 0 11px rgba(168, 70, 34, 0.08); }
+  100% { box-shadow: 0 0 0 5px rgba(168, 70, 34, 0.08); }
+}
+
+/* The diagram is static when motion is not wanted. */
+@media (prefers-reduced-motion: reduce) {
+  .signal__pulse {
+    display: none;
+  }
+
+  .hero__chip-dot {
+    animation: none;
+  }
+}
+
+.signal__caption {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 13px;
+  margin: 22px 0 0;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: #8b8d95;
+}
+
+.signal__caption-title {
+  color: #474950;
+}
+
+.signal__caption-rule {
+  flex: 1;
+  min-width: 24px;
+  height: 1px;
+  background: var(--color-border-strong);
+}
+
+/* --------------------------------------------------------------------------
+   Purpose band
+   -------------------------------------------------------------------------- */
+.purpose {
+  padding-block: 68px;
+  background: var(--color-surface-dark);
+}
+
+.purpose__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+  gap: 76px;
+  align-items: center;
+}
+
+.purpose__copy {
+  max-width: 650px;
+}
+
+.purpose__title {
+  max-width: 22ch;
+  margin-top: 15px;
+  font-size: clamp(1.85rem, 3vw, 2.65rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--color-on-dark);
+}
+
+.purpose__lede {
+  max-width: 48ch;
+  margin-top: 16px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--color-on-dark-secondary);
+}
+
+.purpose__uses {
+  padding-left: 42px;
+  border-left: 1px solid var(--color-on-dark-border);
+}
+
+.purpose__label {
+  margin-bottom: 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-on-dark-tertiary);
+}
+
+.purpose__list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.purpose__list li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 74px;
+  padding: 11px 14px 11px 20px;
+  border-top: 1px solid var(--color-on-dark-divider);
+  font-size: 13.5px;
+  color: var(--color-on-dark-body);
+  transition: color var(--transition-hover), background var(--transition-hover);
+}
+
+.purpose__list li:nth-child(odd) {
+  border-right: 1px solid var(--color-on-dark-divider);
+}
+
+.purpose__list li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .purpose__list li:hover {
+    background: var(--color-hover-on-dark);
+    color: var(--color-on-dark);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Divisions overview
+   -------------------------------------------------------------------------- */
+.division-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.division-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 382px;
+  padding: 26px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-muted);
+  transition: transform var(--transition-hover), box-shadow var(--transition-hover),
+    border-color var(--transition-hover), background var(--transition-hover);
+}
+
+/* One interactive-card family: the What We Do cards and the About
+   statements share this exact hover, so the two sections can never drift
+   apart. The card reads through surface, border and elevation alone — no
+   decorative accent rule. */
+@media (hover: hover) and (pointer: fine) {
+  .division-card:hover,
+  .statement:hover {
+    transform: translateY(var(--hover-lift));
+    border-color: var(--color-hover-border);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-hover);
+  }
+}
+
+/* The phase this division covers — Learn, Implement, Grow. It labels the
+   division's role in the system, not its position in a numbered sequence. */
+.division-card__phase {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8b8d95;
+}
+
+.division-card__name {
+  margin-top: 24px;
+  font-size: 23px;
+  letter-spacing: -0.02em;
+}
+
+.division-card__objective {
+  max-width: 25ch;
+  margin-top: 8px;
+  font-size: 15.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.division-card__detail {
+  max-width: 35ch;
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.division-card .link-more {
+  margin-top: auto;
+  /* 24px of separation above a 44px touch target */
+  min-height: 68px;
+  padding-top: 24px;
+  font-size: 13.5px;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.tag-list li {
+  padding: 6px 13px;
+  border: 1px solid #e6e6e9;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  font-size: 12.5px;
+  color: var(--color-text-primary);
+}
+
+/* --------------------------------------------------------------------------
+   Division sections — shared split layout
+   -------------------------------------------------------------------------- */
+/* Both columns are anchored to the top of the row. Centring them meant that
+   any change in the height of the interactive panel on the right moved the
+   left column by half the difference, so switching an Academy tab or opening
+   a different Transform service made the whole section appear to shift.
+   `start` only changes where each column sits inside its grid area — the area
+   itself is still the full height of the row, so the sticky intro below keeps
+   the same room to travel. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.78fr) minmax(0, 1.22fr);
+  gap: 76px;
+  align-items: start;
+}
+
+.split__intro {
+  position: sticky;
+  top: calc(var(--header-height) + 40px);
+}
+
+.split__title {
+  max-width: 15ch;
+  margin-top: 14px;
+  font-size: clamp(2rem, 3vw, 2.7rem);
+  line-height: 1.22;
+}
+
+.split__lede {
+  max-width: 44ch;
+  margin-top: 16px;
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+
+.split__cta {
+  margin-top: 28px;
+}
+
+/* Panel: the interactive surface on the right of each division section.
+   Content starts straight after the padding — the panel is defined by its
+   border, radius and shadow, with no decorative header rule. */
+.panel {
+  position: relative;
+  padding: 26px;
+  overflow: hidden;
+  border: 1px solid #dedfe3;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-panel);
+}
+
+/* --------------------------------------------------------------------------
+   Academy — tabbed programme groups
+   -------------------------------------------------------------------------- */
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  width: 100%;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-tint);
+}
+
+.tab {
+  min-height: 36px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-hover), color var(--transition-hover),
+    box-shadow var(--transition-hover);
+}
+
+/* Hover is a whisper of tint; the selected tab keeps its solid surface and
+   shadow (its rule follows this one, so it wins shared properties). */
+@media (hover: hover) and (pointer: fine) {
+  .tab:hover {
+    background: var(--color-hover-soft);
+    color: var(--color-text-primary);
+  }
+}
+
+.tab[aria-selected="true"] {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 3px rgba(25, 26, 33, 0.12);
+}
+
+.tab-panel {
+  padding-top: 18px;
+}
+
+.tab-panel[hidden] {
+  display: none;
+}
+
+/* The three groups hold different numbers of programmes, so switching tabs
+   used to resize the panel. Placing every group in the same grid cell makes
+   the panel exactly as tall as the largest group and nothing else, whichever
+   tab is selected — the reserved height comes from the content itself rather
+   than from a guessed number. The inactive groups keep their space but are
+   taken out of view, out of the tab order and out of the accessibility tree
+   by `visibility: hidden`. */
+.panel--tabs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+}
+
+.panel--tabs .tab-panel {
+  display: flex;
+  flex-direction: column;
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.panel--tabs .tab-panel[hidden] {
+  display: flex;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* With the height fixed by the largest group, the note is pinned to the floor
+   of the panel so it lands in the same place in all three groups instead of
+   leaving a ragged gap under the shorter one. `padding-top` preserves the
+   16px minimum gap the note has when a group fills the panel. */
+.panel--tabs .tab-panel__note {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.program {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 10px;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  transition: background var(--transition-hover);
+}
+
+.program:last-child {
+  border-bottom: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .program:hover {
+    background: var(--color-hover-soft);
+  }
+}
+
+.program__index {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.tab-panel__note {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Transform — service flow accordion
+   -------------------------------------------------------------------------- */
+/* Services carry different amounts of copy and the first one carries an extra
+   CTA, so opening a different service used to change the panel's height.
+   main.js measures the tallest expanded state — at the current width, with the
+   fonts that actually loaded — and publishes it as --flow-reserve, which keeps
+   the panel one height whichever service is open.
+   The reservation applies at every width. It is measured at the width in force,
+   so the slack under a short service is only the difference between it and the
+   longest one — around 20-40px on a stacked layout — which is a smaller cost
+   than having the rest of the page step up and down as services are opened. */
+.flow {
+  min-height: var(--flow-reserve, 0px);
+}
+
+.flow__item {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 16px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-hover);
+}
+
+.flow__item:last-child {
+  border-bottom: 0;
+}
+
+/* Hover previews the open tint; the open row is distinguished by its
+   expanded body and accent node, not by a second background. */
+@media (hover: hover) and (pointer: fine) {
+  .flow__item:hover {
+    background: var(--color-hover-soft);
+  }
+}
+
+.flow__item.is-open {
+  background: var(--color-hover-soft);
+}
+
+.flow__node {
+  padding-top: 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-muted);
+  transition: color var(--transition-base);
+}
+
+.flow__item.is-open .flow__node {
+  font-weight: 500;
+  color: var(--color-accent);
+}
+
+.flow__heading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: normal;
+}
+
+.flow__toggle {
+  display: block;
+  width: 100%;
+  padding: 16px 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  font-family: var(--font-sans);
+  font-size: 16.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+/* No hover rule here on purpose: hovering a service row is answered by the
+   warm tint on .flow__item above. The heading keeps its primary colour, so
+   the accent stays reserved for the open row's node. */
+
+/* Height animation via grid rows: no fixed max-height, so longer copy can
+   never be clipped. Browsers without 0fr interpolation simply snap open. */
+.flow__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.flow__item.is-open .flow__body {
+  grid-template-rows: 1fr;
+}
+
+.flow__body-inner {
+  overflow: hidden;
+  visibility: hidden;
+  min-height: 0;
+  transition: visibility 0s linear 0.3s;
+}
+
+.flow__item.is-open .flow__body-inner {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+/* Without JavaScript nothing can expand these, so show every service in full. */
+html:not(.js) .flow__body {
+  grid-template-rows: 1fr;
+}
+
+html:not(.js) .flow__body-inner {
+  visibility: visible;
+}
+
+.flow__body p {
+  max-width: 52ch;
+  margin-bottom: 15px;
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+
+.flow__body .link-more {
+  min-height: 30px;
+  margin: -9px 0 15px;
+  font-size: 13px;
+}
+
+/* --------------------------------------------------------------------------
+   Discover — visibility layers
+   -------------------------------------------------------------------------- */
+.discover-stack {
+  display: flex;
+  flex-direction: column;
+  padding-block: 26px;
+}
+
+.discover-stack__cap {
+  padding-left: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.discover-stack__line {
+  width: 0;
+  height: 14px;
+  margin: 8px auto;
+  border-left: 1px solid var(--color-border-strong);
+}
+
+.discover-layer {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 20px;
+  align-items: center;
+  padding: 15px 16px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  transition: background var(--transition-hover), border-color var(--transition-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .discover-layer:hover {
+    border-color: var(--color-border);
+    background: var(--color-hover-soft);
+  }
+}
+
+.discover-layer__kind {
+  display: block;
+  margin-bottom: 5px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.discover-layer__name {
+  font-size: 14.5px;
+  letter-spacing: -0.01em;
+}
+
+.service-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 0;
+}
+
+.service-list li {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.service-list li + li::before {
+  content: "·";
+  margin: 0 10px;
+  color: #c9ccd6;
+}
+
+/* --------------------------------------------------------------------------
+   About
+   -------------------------------------------------------------------------- */
+.about {
+  position: relative;
+  overflow: hidden;
+  padding-block: 0;
+  background: var(--color-surface);
+}
+
+.about__arcs {
+  position: absolute;
+  left: -140px;
+  bottom: -160px;
+  z-index: 0;
+  width: 480px;
+  height: 480px;
+  pointer-events: none;
+}
+
+.about__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 0.88fr 1.12fr;
+  gap: 36px;
+  padding-block: 100px;
+}
+
+.about__intro {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.about__intro::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -90px;
+  z-index: 0;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, #fbeee4 0%, rgba(251, 238, 228, 0) 70%);
+}
+
+.about__intro > * {
+  position: relative;
+  z-index: 1;
+}
+
+.about__title {
+  max-width: 19ch;
+  margin-top: 30px;
+  font-size: clamp(2.5rem, 4.3vw, 3.7rem);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+}
+
+.about__lede {
+  max-width: 42ch;
+  margin-top: 26px;
+  font-size: 16.5px;
+  line-height: 1.75;
+}
+
+.value-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 36px;
+}
+
+.value-list li {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.value-list li + li::before {
+  content: "·";
+  margin: 0 16px;
+  color: #c9ccd6;
+}
+
+.about__statements {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.statement {
+  padding: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-muted);
+  transition: transform var(--transition-hover), box-shadow var(--transition-hover),
+    border-color var(--transition-hover), background var(--transition-hover);
+}
+
+/* Hover: shared with .division-card — see the interactive-card rule in the
+   divisions block. */
+
+.statement__kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.statement__kind::after {
+  content: "";
+  width: 30px;
+  height: 1px;
+  background: var(--color-accent-line);
+}
+
+.statement__title {
+  max-width: 22ch;
+  margin-top: 16px;
+  font-size: 1.45rem;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+
+.statement__text {
+  max-width: 52ch;
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+/* --------------------------------------------------------------------------
+   Closing CTA band
+   -------------------------------------------------------------------------- */
+.cta-band {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 34px;
+  align-items: center;
+  max-width: 1268px;
+  margin-inline: auto;
+  padding: 42px 44px;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--color-surface-dark);
+  box-shadow: 0 28px 70px rgba(22, 23, 28, 0.2);
+}
+
+.cta-band__deco {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 280px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.cta-band__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-accent);
+}
+
+.cta-band__icon .icon {
+  width: 24px;
+  height: 24px;
+}
+
+.cta-band__copy,
+.cta-band__actions {
+  position: relative;
+  z-index: 1;
+}
+
+.cta-band__title {
+  font-size: clamp(1.5rem, 2.3vw, 1.9rem);
+  line-height: 1.2;
+  color: var(--color-on-dark);
+}
+
+.cta-band__copy p {
+  max-width: 46ch;
+  margin-top: 10px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   Breakpoints follow the approved layout: the hero and split sections stack
+   first, then the card grids, then type and spacing tighten for phones.
+   -------------------------------------------------------------------------- */
+@media (max-width: 1120px) {
+  .hero__grid {
+    grid-template-columns: 1fr;
+    gap: 38px;
+  }
+
+  .hero__title {
+    max-width: 12ch;
+  }
+
+  /* Stacked hero: the visual is content-sized, so no dead space below it. */
+  .hero__visual {
+    width: 100%;
+    max-width: 620px;
+    min-height: 0;
+  }
+
+  .split {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .split__intro {
+    position: static;
+  }
+
+  .about__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .hero__grid {
+    padding-block: 52px 60px;
+  }
+
+  .discover-layer {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .cta-band {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 34px 32px;
+  }
+
+  .cta-band__deco {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .purpose__grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .purpose__uses {
+    padding-top: 28px;
+    padding-left: 0;
+    border-top: 1px solid var(--color-on-dark-border);
+    border-left: 0;
+  }
+}
+
+@media (max-width: 820px) {
+  .division-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .division-card {
+    min-height: 0;
+  }
+
+  .about__statements {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-band {
+    margin-inline: 20px;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero__actions .button {
+    width: 100%;
+  }
+
+  .hero__visual {
+    padding-inline: 0;
+  }
+
+  /* --node-y and the chip geometry hold, so the pulse still lands on thirds. */
+  .signal__step {
+    padding-left: 34px;
+  }
+
+  .signal-card {
+    min-height: 102px;
+    padding: 18px;
+  }
+
+  .signal-card__name {
+    font-size: 21px;
+  }
+
+  .signal-card__detail {
+    font-size: 10.5px;
+  }
+
+  .signal__caption {
+    gap: 9px;
+  }
+
+  .signal__pillar {
+    display: none;
+  }
+
+  .about__grid {
+    padding-block: 72px;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero__grid {
+    padding-block: 58px 66px;
+  }
+
+  .hero__title {
+    font-size: clamp(2.9rem, 14vw, 4rem);
+  }
+
+  .purpose {
+    padding-block: 56px;
+  }
+
+  .purpose__title {
+    font-size: 2rem;
+  }
+
+  .purpose__list {
+    grid-template-columns: 1fr;
+  }
+
+  .purpose__list li:nth-child(odd) {
+    border-right: 0;
+  }
+
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .tab {
+    text-align: left;
+  }
+}

@@ -1,0 +1,1046 @@
+/* ==========================================================================
+   ILORE — AI Opportunity Assessment
+   A four-step guided form presented as a two-panel workspace.
+   ========================================================================== */
+
+.assessment-page {
+  background:
+    radial-gradient(circle at 13% 12%, rgba(168, 70, 34, 0.055), transparent 22%),
+    linear-gradient(180deg, #fcfcfd 0%, #f5f5f7 100%);
+}
+
+/* --------------------------------------------------------------------------
+   Two-panel layout: context on the left, the form workspace on the right.
+   -------------------------------------------------------------------------- */
+.assessment-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.28fr);
+  gap: 38px;
+  align-items: start;
+  padding-block: 52px 84px;
+}
+
+.assessment-intro {
+  position: sticky;
+  top: calc(var(--header-height) + 36px);
+}
+
+.assessment-title {
+  max-width: 11.5ch;
+  margin-top: 22px;
+  font-size: clamp(2.75rem, 4vw, 3.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+.assessment-lede {
+  max-width: 45ch;
+  margin-top: 20px;
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+
+.assessment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.assessment-meta li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 158px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.assessment-meta strong {
+  font-size: 13px;
+  color: var(--color-text-primary);
+}
+
+.assessment-meta small {
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}
+
+/* Topic carried in from an ?intent= link. */
+.intent-chip {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  padding: 7px 9px 7px 16px;
+  border: 1px solid #e0c3b5;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: 0 8px 26px rgba(168, 70, 34, 0.06);
+}
+
+.intent-chip.is-visible {
+  display: inline-flex;
+}
+
+.intent-chip__key {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.intent-chip__value {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.intent-chip__clear {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: #f0f0f4;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.intent-chip__clear:hover {
+  background: var(--color-border);
+}
+
+/* --------------------------------------------------------------------------
+   Supporting context cards
+   -------------------------------------------------------------------------- */
+.support-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.support-card {
+  padding: 22px;
+  border: 1px solid #e0e1e4;
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.support-card__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 13px;
+}
+
+.support-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #e6e6e9;
+  border-radius: 10px;
+  background: var(--color-surface-tint);
+  color: var(--color-text-nav);
+}
+
+.support-card__title {
+  font-size: 15.5px;
+  letter-spacing: -0.015em;
+}
+
+.support-card__intro {
+  margin-bottom: 16px;
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+
+.support-divider {
+  height: 1px;
+  margin: 20px 0;
+  background: var(--color-border);
+}
+
+.explore-list {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.explore-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-size: 13.5px;
+  color: var(--color-text-secondary);
+}
+
+.explore-list .icon {
+  width: 17px;
+  height: 17px;
+  margin-top: 2px;
+  color: var(--color-accent);
+}
+
+.next-list li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 14px;
+  padding-bottom: 16px;
+}
+
+.next-list li:last-child {
+  padding-bottom: 0;
+}
+
+/* Connecting rule between the numbered steps. */
+.next-list li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 30px;
+  bottom: 2px;
+  left: 12px;
+  width: 1px;
+  background: var(--color-border);
+}
+
+.next-list__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-surface-dark-raised);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--color-on-dark);
+}
+
+.next-list__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.next-list p {
+  margin-top: 3px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.trust-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 5px 8px 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #85878f;
+}
+
+.trust-note .icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  color: var(--color-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Form workspace
+   -------------------------------------------------------------------------- */
+.form-card {
+  position: relative;
+  z-index: 1;
+  border: 1px solid #dcdddf;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.form-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-xl);
+  pointer-events: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.workspace-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 57px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-surface-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #7d7f87;
+}
+
+.workspace-bar__label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #42444b;
+}
+
+.workspace-bar__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 5px rgba(168, 70, 34, 0.08);
+}
+
+.form-card__body {
+  padding: 26px 38px 34px;
+}
+
+/* --------------------------------------------------------------------------
+   Step indicator and progress
+   -------------------------------------------------------------------------- */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.stepper__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  opacity: 0.5;
+  transition: opacity var(--transition-base);
+}
+
+.stepper__item.is-current,
+.stepper__item.is-done {
+  opacity: 1;
+}
+
+.stepper__item + .stepper__item {
+  flex: 1;
+}
+
+.stepper__line {
+  flex: 1;
+  min-width: 12px;
+  height: 1px;
+  background: var(--color-border-strong);
+}
+
+.stepper__dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #f0f0f4;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  transition: background var(--transition-base), color var(--transition-base);
+}
+
+.stepper__label {
+  overflow: hidden;
+  font-size: 12.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-text-muted);
+}
+
+.stepper__item.is-current .stepper__dot {
+  background: var(--color-surface-dark-raised);
+  color: var(--color-on-dark);
+}
+
+.stepper__item.is-current .stepper__label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.stepper__item.is-done .stepper__dot {
+  background: #eee6e2;
+  color: var(--color-accent);
+}
+
+.stepper__item.is-done .stepper__label {
+  color: var(--color-text-secondary);
+}
+
+.progress {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 7px;
+}
+
+.progress__count {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.progress__bar {
+  position: relative;
+  height: 3px;
+  margin-bottom: 34px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: #f0f0f4;
+}
+
+.progress__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--color-accent), #cb7c58);
+  transition: width var(--transition-base);
+}
+
+/* --------------------------------------------------------------------------
+   Steps and questions
+   -------------------------------------------------------------------------- */
+.step {
+  display: none;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.step.is-active {
+  display: flex;
+}
+
+/* Two steps end on a secondary input rather than another answer card, and
+   both need a wider break so that input reads as its own subsection instead
+   of one more control: Step 2's optional textarea and Step 3's follow-up
+   question. */
+.step--challenge,
+.step--about {
+  gap: 34px;
+}
+
+.question-group {
+  padding: 22px 24px;
+  border: 1px solid #ececef;
+  border-radius: var(--radius-md);
+  background: #fcfcfd;
+  /* Keep a focused question clear of the sticky controls when scrolled to. */
+  scroll-margin-block: calc(var(--header-height) + 24px) 120px;
+}
+
+.question {
+  margin-bottom: 14px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.question--tight {
+  margin-bottom: 8px;
+}
+
+.question-note {
+  margin-bottom: 20px;
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Options
+   The radio itself is visually hidden but stays focusable, so the label acts
+   as the target and the card carries every state. Each state is written once,
+   in reading order — hover, selected, then focus as the final word — so no two
+   of them can draw a border at the same time.
+   -------------------------------------------------------------------------- */
+.option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 74px;
+  padding: 12px 16px;
+  border: 1px solid #e3e4e7;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: transform var(--transition-hover), border-color var(--transition-hover),
+    box-shadow var(--transition-hover), background var(--transition-hover);
+}
+
+/* Shared card hover — deliberately weaker than the selected state below:
+   a light warm border and lift versus the selected option's deep accent
+   border and tinted fill. */
+@media (hover: hover) and (pointer: fine) {
+  .option:hover {
+    transform: translateY(var(--hover-lift));
+    border-color: var(--color-hover-border);
+    box-shadow: var(--shadow-hover);
+  }
+}
+
+.option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.option__icon {
+  display: flex;
+  color: #686a72;
+}
+
+.option__icon .icon {
+  width: 19px;
+  height: 19px;
+}
+
+.option__ring {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 50%;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+/* One accent border and a light tint — no inset ring stacked behind it. */
+.option:has(input:checked) {
+  border: 2px solid #b96a49;
+  background: #fbf4f1;
+  box-shadow: none;
+}
+
+.option:has(input:checked) .option__icon {
+  color: var(--color-accent);
+}
+
+.option:has(input:checked) .option__ring {
+  border-color: var(--color-accent);
+  box-shadow: inset 0 0 0 4.5px var(--color-accent);
+}
+
+/* Fallback for browsers without :has() — the class is mirrored from script. */
+.option.is-selected {
+  border: 2px solid #b96a49;
+  background: #fbf4f1;
+  box-shadow: none;
+}
+
+.option.is-selected .option__icon {
+  color: var(--color-accent);
+}
+
+.option.is-selected .option__ring {
+  border-color: var(--color-accent);
+  box-shadow: inset 0 0 0 4.5px var(--color-accent);
+}
+
+.option--pill {
+  min-height: 54px;
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13.5px;
+}
+
+.option--pill .option__ring {
+  display: none;
+}
+
+.option--pill:has(input:checked),
+.option--pill.is-selected {
+  border-color: var(--color-surface-dark-raised);
+  background: var(--color-surface-dark-raised);
+  color: var(--color-on-dark);
+}
+
+/* The single focus treatment for every option card, selected or not, and the
+   last word on box-shadow so it can never sit under another state. A soft
+   halo rather than a solid ring: a selected card already carries an accent
+   border, and a second hard line beside it reads as a doubled border.
+   :focus-visible keeps this to keyboard users — a click leaves the card clean. */
+.option:has(input:focus-visible) {
+  box-shadow: 0 0 0 3px rgba(168, 70, 34, 0.18);
+}
+
+/* Without :has() the halo cannot be scoped to the label, so those browsers
+   keep an outline rather than losing the focus indicator altogether. */
+@supports not selector(:has(*)) {
+  .option:focus-within {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+/* Step 2's challenge cards carry a line of text and nothing else — no icon,
+   no second line of detail — so the tall card the Step 1 options need only
+   reads as dead space here. Shorter cards with a visible gap between them
+   are lighter than tall cards that touch. The lines run long enough that two
+   to a row would wrap, so these stack one per row. Scoped to the step so the
+   sector and maturity grids keep their two-up proportions. */
+.step--challenge .option-grid {
+  grid-template-columns: 1fr;
+  gap: 13px;
+}
+
+.step--challenge .option {
+  min-height: 66px;
+  padding: 12px 18px;
+}
+
+/* --------------------------------------------------------------------------
+   Fields
+   -------------------------------------------------------------------------- */
+/* Rows are set wider than columns: two fields side by side read as one line,
+   so the break between lines has to be the larger of the two gaps. */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 22px;
+  row-gap: 26px;
+}
+
+.field {
+  scroll-margin-block: calc(var(--header-height) + 24px) 120px;
+}
+
+.field__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.field__optional {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* Padding and line-height together fix the control height at 47px rather than
+   leaving it to the UA's idea of `normal`, so every input matches the density
+   of the option cards beside it. */
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dcdddf;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.field textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* One accent border plus a soft halo — the same language as a selected option
+   card, and no second solid ring outside it. The transparent outline is what
+   carries the focus state through forced-colors mode, where box-shadow is
+   dropped. */
+.field input:focus,
+.field textarea:focus {
+  border-color: #b96a49;
+  box-shadow: 0 0 0 4px rgba(168, 70, 34, 0.1);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.field input[aria-invalid="true"],
+.field textarea[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+/* Focusing an invalid field keeps the error colour rather than layering an
+   accent halo around a red border. */
+.field input[aria-invalid="true"]:focus,
+.field textarea[aria-invalid="true"]:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 4px rgba(194, 51, 15, 0.1);
+}
+
+.field-error {
+  display: none;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-danger);
+}
+
+.field-error.is-visible {
+  display: block;
+}
+
+/* Conditional blocks revealed by earlier answers. `display: block` suits a
+   revealed field, but it would flatten a revealed option grid and take its
+   `gap` with it, so grids restate their own display here. */
+.conditional {
+  display: none;
+}
+
+.conditional.is-visible {
+  display: block;
+}
+
+.option-grid.conditional.is-visible {
+  display: grid;
+}
+
+/* A revealed follow-up is a child of the answer above it: far enough from the
+   selected card to read as its own question, close enough to stay attached. */
+.field--spaced {
+  margin-top: 22px;
+}
+
+.field--phone {
+  max-width: 340px;
+  margin-top: 24px;
+}
+
+/* --------------------------------------------------------------------------
+   Review and consent
+   -------------------------------------------------------------------------- */
+.review {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface-muted);
+}
+
+.review__row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 8px;
+  padding: 15px 18px;
+  font-size: 13.5px;
+}
+
+.review__row + .review__row {
+  border-top: 1px solid var(--color-border);
+}
+
+.review__key {
+  color: var(--color-text-muted);
+}
+
+.review__value {
+  color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 26px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 13px;
+  background: var(--color-surface-muted);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.consent input {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  margin-top: 2px;
+  accent-color: var(--color-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Controls
+   The bar sticks to the bottom of the viewport while the step scrolls. The
+   negative margins let it bleed to the card edges.
+   -------------------------------------------------------------------------- */
+.form-controls {
+  position: sticky;
+  bottom: 12px;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 32px -14px -18px;
+  padding: 14px;
+  border: 1px solid rgba(218, 219, 223, 0.9);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 34px rgba(23, 24, 29, 0.1);
+}
+
+@supports (backdrop-filter: blur(18px)) or (-webkit-backdrop-filter: blur(18px)) {
+  .form-controls {
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+  }
+}
+
+.form-controls .button {
+  min-width: 118px;
+}
+
+.form-controls .button[hidden] {
+  display: none;
+}
+
+.save-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+}
+
+.save-note[hidden] {
+  display: none;
+}
+
+.save-note .icon {
+  width: 15px;
+  height: 15px;
+}
+
+/* --------------------------------------------------------------------------
+   Outcome panels (submitted / not connected)
+   -------------------------------------------------------------------------- */
+.outcome {
+  display: none;
+  padding: 44px;
+}
+
+.outcome.is-visible {
+  display: block;
+}
+
+.outcome__tick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  margin-bottom: 26px;
+  border-radius: 50%;
+  background: var(--color-surface-dark-raised);
+  font-size: 24px;
+  color: var(--color-on-dark);
+}
+
+.outcome__title {
+  margin-bottom: 14px;
+  font-size: 1.7rem;
+  line-height: 1.2;
+}
+
+.outcome__lede {
+  max-width: 56ch;
+  margin-bottom: 32px;
+}
+
+.outcome__hint {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.next-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 56ch;
+  margin-top: 18px;
+}
+
+.next-steps__row {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 14px;
+  font-size: 14.5px;
+}
+
+.next-steps__index {
+  padding-top: 3px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-accent);
+}
+
+.outcome__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+/* Spam trap: reachable to scripts, never to people. */
+.honeypot {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 1080px) {
+  .assessment-layout {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .assessment-intro {
+    position: static;
+  }
+}
+
+@media (max-width: 820px) {
+  .form-card__body {
+    padding: 26px 22px 28px;
+  }
+
+  .workspace-bar {
+    padding-inline: 20px;
+  }
+
+  .option-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .question-group {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 760px) {
+  /* One column: every field is now its own line, so the row gap carries the
+     whole rhythm and eases back from the two-up value. */
+  .two-col {
+    grid-template-columns: 1fr;
+    row-gap: 22px;
+  }
+
+  .review__row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .option--pill {
+    width: 100%;
+  }
+
+  .form-controls {
+    flex-wrap: wrap;
+  }
+
+  .form-controls .button {
+    flex: 1;
+  }
+
+  /* On phones there is no room to reserve an empty slot: let Continue take
+     the full row on the first step instead. */
+  .form-controls .button.is-invisible {
+    display: none;
+  }
+
+  .save-note {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stepper__label {
+    display: none;
+  }
+
+  .stepper__item.is-current .stepper__label {
+    display: block;
+  }
+}
+
+@media (max-width: 560px) {
+  .assessment-layout {
+    padding-top: 38px;
+  }
+
+  .assessment-title {
+    font-size: clamp(2.65rem, 13vw, 3.5rem);
+  }
+
+  .assessment-meta li {
+    flex: 1;
+  }
+
+  .workspace-bar__label {
+    font-size: 9px;
+  }
+
+  /* No room for step labels — the dots and the "Step X / 4" count carry it. */
+  .stepper__item.is-current .stepper__label {
+    display: none;
+  }
+
+  .form-controls {
+    bottom: 8px;
+  }
+
+  .outcome {
+    padding: 32px 22px;
+  }
+}
