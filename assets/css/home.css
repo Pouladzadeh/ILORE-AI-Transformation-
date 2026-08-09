@@ -1039,8 +1039,8 @@ html:not(.js) .flow__body-inner {
 .cta-band {
   position: relative;
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 34px;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
   align-items: center;
   max-width: 1268px;
   margin-inline: auto;
@@ -1059,23 +1059,6 @@ html:not(.js) .flow__body-inner {
   width: 280px;
   opacity: 0.5;
   pointer-events: none;
-}
-
-.cta-band__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 62px;
-  height: 62px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--color-accent);
-}
-
-.cta-band__icon .icon {
-  width: 24px;
-  height: 24px;
 }
 
 .cta-band__copy,
