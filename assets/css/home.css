@@ -6,21 +6,49 @@
 
 /* --------------------------------------------------------------------------
    Hero
+   One composition rather than two columns: the value curve runs full-bleed
+   behind a single copy block, so .hero is the positioning context for the
+   stage that follows further down this file.
    -------------------------------------------------------------------------- */
 .hero {
+  position: relative;
   overflow: hidden;
+  /* A floor, not a fixed height. The curve's first milestone tracks the
+     stage height, while the tagline above it tracks the copy; without this
+     the two close on each other in the 1120-1260 band, where the copy is
+     still full height but the plot has narrowed. Ignored once the layout
+     stacks, where the copy and the stage no longer share space. */
+  min-height: 812px;
   border-bottom: 1px solid var(--color-border);
   background:
     radial-gradient(circle at 84% 16%, rgba(168, 70, 34, 0.08), transparent 24%),
     linear-gradient(180deg, #ffffff 0%, #fbfbfc 100%);
 }
 
-.hero__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.93fr) minmax(520px, 1.07fr);
-  gap: 72px;
-  align-items: center;
-  padding-block: 88px 94px;
+/* The copy rides above the stage. The generous bottom padding is not
+   decoration: it is the room the curve's quiet floor and its first milestone
+   need in order to clear the last line of copy. */
+.hero__inner {
+  position: relative;
+  z-index: 2;
+  padding-block: 88px 148px;
+}
+
+/* The copy is capped well short of the container so the climb has the right
+   half to itself. Its own box is transparent to the pointer, which keeps the
+   milestones behind it reachable; each block of text takes the pointer back
+   so selection and links still work. */
+.hero__copy {
+  max-width: 620px;
+  pointer-events: none;
+}
+
+.hero__copy a,
+.hero__copy .badge,
+.hero__copy .hero__title,
+.hero__copy .hero__lede,
+.hero__copy .hero__path {
+  pointer-events: auto;
 }
 
 .hero__title {
@@ -67,271 +95,210 @@
 }
 
 /* --------------------------------------------------------------------------
-   Hero visual — the transformation signal.
-   Three upright division cards hang off one connector line and the line ends
-   at the measurable-value chip, so the diagram reads as a single path.
-   `min-width: 0` keeps the grid column from being widened by its contents.
+   Hero visual — the value curve.
+   Grey stray lines wander in low on the left and braid into one accent
+   ribbon that climbs through the three divisions to a summit. The curve
+   itself is canvas; the milestones and the terminal chip are DOM, so they
+   stay real links and real text. Script positions them onto the curve and
+   rotates each label to the curve's local slope.
    -------------------------------------------------------------------------- */
-.hero__visual {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-  /* Heights include the block padding below (border-box). */
-  min-height: 560px;
-  padding: 34px 26px 24px;
-}
 
-.hero__aura {
+/* The stage: full-bleed behind the copy on desktop; its own block
+   below the copy once the layout stacks. */
+.hero__stage {
   position: absolute;
-  inset: 10% 2% 8% 10%;
-  pointer-events: none;
-  filter: blur(4px);
-  background:
-    radial-gradient(circle at 62% 45%, rgba(168, 70, 34, 0.13), transparent 35%),
-    radial-gradient(circle at 48% 58%, rgba(28, 29, 35, 0.08), transparent 48%);
+  inset: 0;
+  z-index: 1;
 }
 
-/* The signal group.
-   Geometry is driven by two custom properties so the pulse keyframes stay
-   correct at every breakpoint:
-   --rail-x  x of the connector line, which is also the chip dot's centre
-             (1px chip border + 14px chip padding + half of the 7px dot).
-   --node-y  y of a card's node, measured from that card's top edge.
-   The chip carries an extra margin-top of (--node-y - half the chip height),
-   which makes the Discover-node -> chip-dot distance equal to the node pitch.
-   That is what lets the pulse stop on exact thirds whatever the cards weigh. */
-.signal {
-  --rail-x: 18.5px;
-  --node-y: 34px;
-  --signal-gap: 18px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--signal-gap);
-  transition: transform var(--transition-fast);
-}
-
-/* Same 1px rule as the Discover panel's connector. */
-.signal__rail {
+.hero__canvas {
   position: absolute;
-  top: var(--node-y);
-  bottom: 18px;
-  left: var(--rail-x);
-  width: 0;
-  border-left: 1px solid var(--color-border-strong);
-}
-
-/* The travelling element spans the rail and carries the dot at its top edge,
-   so translateY percentages resolve against the rail's length and the whole
-   animation stays on transform + opacity (no per-frame layout). */
-.signal__pulse {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
+  inset: 0;
+  width: 100%;
   height: 100%;
-  animation: signal-travel 6s var(--hover-ease) infinite;
+  pointer-events: none;
 }
 
-.signal__pulse::before {
-  content: "";
+/* Quiet the lines where they pass beneath the copy. */
+.hero__scrim {
   position: absolute;
-  top: 0;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(255, 255, 255, 0.34) 30%,
+    rgba(255, 255, 255, 0) 48%);
+}
+
+/* --------------------------------------------------------------------------
+   Milestones — divisions ON the curve, labels riding the line
+   -------------------------------------------------------------------------- */
+.ms {
+  position: absolute;
+  z-index: 3;
+  width: 0;
+  height: 0;
+  /* Rotation to the curve's local slope is set inline by script,
+     so the label lies along the line like a street name on a map. */
+}
+
+.ms__dot {
+  position: absolute;
   left: 0;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--color-accent);
+  top: 0;
   transform: translate(-50%, -50%);
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9);
+  transition: box-shadow var(--transition-fast);
 }
 
-/* Academy -> Transform -> Discover -> chip, dwelling at each node. */
-@keyframes signal-travel {
-  0% { transform: translateY(0); opacity: 0; }
-  4% { transform: translateY(0); opacity: 1; }
-  20% { transform: translateY(0); opacity: 1; }
-  33.33% { transform: translateY(33.33%); opacity: 1; }
-  49% { transform: translateY(33.33%); opacity: 1; }
-  66.67% { transform: translateY(66.67%); opacity: 1; }
-  82% { transform: translateY(66.67%); opacity: 1; }
-  96% { transform: translateY(100%); opacity: 1; }
-  100% { transform: translateY(100%); opacity: 0; }
-}
-
-.signal__steps {
-  display: flex;
-  flex-direction: column;
-  gap: var(--signal-gap);
-}
-
-.signal__step {
-  position: relative;
-  /* Clears the rail lane so the line stays visible beside the cards. */
-  padding-left: 40px;
-}
-
-/* The card's node, sitting on the rail. */
-.signal__step::before {
-  content: "";
+/* The label floats just above its point, aligned with the line. */
+.ms__label {
   position: absolute;
-  top: var(--node-y);
-  left: var(--rail-x);
-  width: 7px;
-  height: 7px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 50%;
-  background: var(--color-surface);
-  transform: translate(-50%, -50%);
-}
-
-/* An interactive row, not a card that lifts: tints and never moves.
-   One column: the phase word carries the card, and the rail beside the cards
-   carries their order, so no numbering is needed. */
-.signal-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  row-gap: 9px;
-  min-height: 112px;
-  padding: 20px 22px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-panel);
-  text-decoration: none;
-  transition: background var(--transition-hover), border-color var(--transition-hover);
-}
-
-.signal-card__main {
-  display: flex;
+  left: 0;
+  bottom: 11px;
+  transform: translateX(-50%);
+  display: inline-flex;
   align-items: baseline;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-/* The phase label now leads the card. Reserving the width of the longest of
-   the three words keeps the division names on one left edge across the cards,
-   which is the alignment the removed index column used to provide. */
-.signal-card__phase {
-  min-width: 62px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-accent);
-}
-
-.signal-card__name {
-  font-size: 25px;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  color: var(--color-text-primary);
-}
-
-.signal-card__role {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.signal-card__detail {
-  align-self: end;
-  overflow: hidden;
-  font-size: 12px;
+  gap: 7px;
+  padding: 4px 6px; /* invisible hit-area padding */
   white-space: nowrap;
-  text-overflow: ellipsis;
-  color: var(--color-text-muted);
+  opacity: 0;
+  translate: 0 8px;
+  transition:
+    opacity 0.34s var(--ease-enter),
+    translate 0.42s var(--ease-spring),
+    color var(--transition-fast);
+}
+
+.ms.is-in .ms__label {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.ms__name {
+  font-size: 16.5px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
   transition: color var(--transition-fast);
 }
 
+.ms__phase {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-accent-ink);
+  opacity: 0.85;
+}
+
 @media (hover: hover) and (pointer: fine) {
-  .signal-card:hover {
-    background: var(--color-hover-soft);
-    border-color: var(--color-hover-border);
+  .ms:hover .ms__name {
+    color: var(--color-accent);
   }
 
-  .signal-card:hover .signal-card__detail {
-    color: var(--color-text-secondary);
-  }
-
-  /* Hold the signal still while someone is reading a card. */
-  .signal:hover .signal__pulse,
-  .signal:hover .hero__chip-dot {
-    animation-play-state: paused;
+  .ms:hover .ms__dot {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9),
+      0 0 0 8px rgba(168, 70, 34, 0.1);
   }
 }
 
-/* End of the line. The extra margin is the thirds offset described above. */
-.hero__chip {
-  align-self: flex-start;
+/* --------------------------------------------------------------------------
+   Terminal chip — the summit. (Border matches the .badge border.)
+   -------------------------------------------------------------------------- */
+.terminal {
+  position: absolute;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  min-height: 36px;
-  max-width: 100%;
-  margin-top: calc(var(--node-y) - 18px);
-  padding: 10px 14px;
-  border: 1px solid #dcdde1;
+  gap: 8px;
+  transform: translate(-100%, -140%);
+  padding: 9px 14px;
+  border: 1px solid #e2c7ba;
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 12px 30px rgba(22, 23, 28, 0.07);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 30px rgba(22, 23, 28, 0.08);
   font-family: var(--font-mono);
   font-size: 9.5px;
   letter-spacing: 0.11em;
   text-transform: uppercase;
-  color: #3e4047;
+  color: var(--color-accent-ink);
+  opacity: 0;
+  translate: 0 8px;
+  scale: 0.94;
+  transition:
+    opacity 0.34s var(--ease-enter),
+    translate 0.46s var(--ease-spring),
+    scale 0.46s var(--ease-spring);
 }
 
-.hero__chip-dot {
-  width: 7px;
-  height: 7px;
+.terminal.is-in {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+.terminal__dot {
+  width: 6px;
+  height: 6px;
   flex: none;
   border-radius: 50%;
   background: var(--color-accent);
-  box-shadow: 0 0 0 5px rgba(168, 70, 34, 0.08);
-  /* Same 6s clock as the pulse, so the ring opens as the pulse lands. */
-  animation: signal-arrive 6s var(--hover-ease) infinite;
+  box-shadow: 0 0 0 4px rgba(168, 70, 34, 0.1);
 }
 
-@keyframes signal-arrive {
-  0%, 88% { box-shadow: 0 0 0 5px rgba(168, 70, 34, 0.08); }
-  96% { box-shadow: 0 0 0 11px rgba(168, 70, 34, 0.08); }
-  100% { box-shadow: 0 0 0 5px rgba(168, 70, 34, 0.08); }
-}
+/* --------------------------------------------------------------------------
+   Stacked layout — mirrors the site's 1120 hero breakpoint
+   -------------------------------------------------------------------------- */
+@media (max-width: 1120px) {
+  /* Source order puts the stage first so it can sit behind the copy on
+     desktop; once it becomes a block of its own it belongs after the copy,
+     which is what the ordering here buys. */
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
 
-/* The diagram is static when motion is not wanted. */
-@media (prefers-reduced-motion: reduce) {
-  .signal__pulse {
+  .hero__inner {
+    order: 1;
+  }
+
+  .hero__stage {
+    order: 2;
+    position: relative;
+    inset: auto;
+    height: 460px;
+  }
+
+  .hero__scrim {
     display: none;
   }
+}
 
-  .hero__chip-dot {
-    animation: none;
+@media (max-width: 820px) {
+  .ms__name {
+    font-size: 14px;
+  }
+
+  .ms__phase {
+    display: none;
   }
 }
 
-.signal__caption {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 13px;
-  margin: 22px 0 0;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.08em;
-  color: #8b8d95;
-}
-
-.signal__caption-title {
-  color: #474950;
-}
-
-.signal__caption-rule {
-  flex: 1;
-  min-width: 24px;
-  height: 1px;
-  background: var(--color-border-strong);
+/* Reduced motion: markers simply fade; no travel, no spring. */
+@media (prefers-reduced-motion: reduce) {
+  .ms__label,
+  .terminal {
+    transition: opacity 0.2s ease;
+    translate: 0 0;
+    scale: 1;
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -545,10 +512,6 @@
   margin-top: 16px;
   font-size: 15.5px;
   line-height: 1.75;
-}
-
-.split__cta {
-  margin-top: 28px;
 }
 
 /* Panel: the interactive surface on the right of each division section.
@@ -1065,20 +1028,14 @@ html:not(.js) .flow__body-inner {
    first, then the card grids, then type and spacing tighten for phones.
    -------------------------------------------------------------------------- */
 @media (max-width: 1120px) {
-  .hero__grid {
-    grid-template-columns: 1fr;
-    gap: 38px;
+  /* The stage is a block of its own below the copy, so the copy no longer
+     needs to reserve room beneath itself for the curve's floor. */
+  .hero__inner {
+    padding-block: 78px 34px;
   }
 
   .hero__title {
     max-width: 12ch;
-  }
-
-  /* Stacked hero: the visual is content-sized, so no dead space below it. */
-  .hero__visual {
-    width: 100%;
-    max-width: 620px;
-    min-height: 0;
   }
 
   .split {
@@ -1092,8 +1049,8 @@ html:not(.js) .flow__body-inner {
 }
 
 @media (max-width: 980px) {
-  .hero__grid {
-    padding-block: 52px 60px;
+  .hero__inner {
+    padding-block: 52px 28px;
   }
 
   .discover-layer {
@@ -1149,44 +1106,14 @@ html:not(.js) .flow__body-inner {
     width: 100%;
   }
 
-  .hero__visual {
-    padding-inline: 0;
-  }
-
-  /* --node-y and the chip geometry hold, so the pulse still lands on thirds. */
-  .signal__step {
-    padding-left: 34px;
-  }
-
-  .signal-card {
-    min-height: 102px;
-    padding: 18px;
-  }
-
-  .signal-card__name {
-    font-size: 21px;
-  }
-
-  .signal-card__detail {
-    font-size: 10.5px;
-  }
-
-  .signal__caption {
-    gap: 9px;
-  }
-
-  .signal__pillar {
-    display: none;
-  }
-
   .about__grid {
     padding-block: 72px;
   }
 }
 
 @media (max-width: 560px) {
-  .hero__grid {
-    padding-block: 58px 66px;
+  .hero__inner {
+    padding-block: 58px 28px;
   }
 
   .hero__title {

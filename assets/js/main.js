@@ -2,13 +2,12 @@
    ILORE — Homepage behaviour
    Progressive enhancement only: every section reads correctly without this
    file, JavaScript adds navigation, tabs, the service accordion, scroll
-   reveal, scrollspy, the hero signal parallax and CTA tracking.
+   reveal, scrollspy, the hero value curve and CTA tracking.
    ========================================================================== */
 (function () {
   "use strict";
 
   var SPY_OFFSET = 140;
-  var PARALLAX_MAX = 4;
 
   /* ------------------------------------------------------------------------
      Analytics helper
@@ -308,60 +307,6 @@
   }
 
   /* ------------------------------------------------------------------------
-     Hero signal parallax
-     Nudges the whole diagram by at most PARALLAX_MAX px against the pointer.
-     Decoration only: skipped entirely without a fine pointer, and whenever
-     reduced motion is asked for. The easing lives on .signal in CSS.
-     ------------------------------------------------------------------------ */
-  function initHeroParallax() {
-    var group = document.querySelector(".signal");
-    if (!group) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-
-    var hero = group.closest(".hero");
-    if (!hero) return;
-
-    var offsetX = 0;
-    var offsetY = 0;
-    var frame = 0;
-
-    function apply() {
-      frame = 0;
-      group.style.transform = "translate3d(" + offsetX + "px, " + offsetY + "px, 0)";
-    }
-
-    function requestApply() {
-      if (!frame) frame = window.requestAnimationFrame(apply);
-    }
-
-    function axis(position, start, size) {
-      if (!size) return 0;
-      // -1 at the near edge, +1 at the far edge, then scaled and rounded so
-      // we are not writing a new transform for every sub-pixel of movement.
-      var ratio = ((position - start) / size) * 2 - 1;
-      return Math.round(ratio * PARALLAX_MAX * 10) / 10;
-    }
-
-    hero.addEventListener(
-      "mousemove",
-      function (event) {
-        var rect = hero.getBoundingClientRect();
-        offsetX = axis(event.clientX, rect.left, rect.width);
-        offsetY = axis(event.clientY, rect.top, rect.height);
-        requestApply();
-      },
-      { passive: true }
-    );
-
-    hero.addEventListener("mouseleave", function () {
-      offsetX = 0;
-      offsetY = 0;
-      requestApply();
-    });
-  }
-
-  /* ------------------------------------------------------------------------
      CTA tracking
      ------------------------------------------------------------------------ */
   function initCtaTracking() {
@@ -380,6 +325,705 @@
   initAccordion();
   initScrollReveal();
   initScrollSpy();
-  initHeroParallax();
   initCtaTracking();
+})();
+
+/* ====================================================================
+   ILORE hero visual — "The value curve" — BEHAVIOUR (for main.js)
+
+   Add this IIFE alongside the other behaviours in main.js. Like every
+   behaviour in that file it no-ops when its markup is absent, so
+   assessment.html is unaffected.
+
+   What it draws:
+   - Grey stray lines wander in low on the left (scattered experiments)
+     and braid into one accent curve — a tapered ribbon that thickens
+     and deepens in colour as it climbs — ending at a summit dot.
+   - Three of the strays survive the merge as faint filaments braided
+     around the spine, converging to zero at the summit.
+   - Milestones (DOM links) are positioned onto the curve's inflection
+     points and rotated to its local slope.
+   - Opening scene, once per pageview: strays fade in, the curve draws
+     itself led by a comet tip, labels spring in as the tip passes,
+     the summit lands with a one-time double ring burst.
+   - Idle: gentle breathing + summit pulse. Cursor: ripple within
+     ~120px, scrub guideline + dot + phase name. Milestone hover paints
+     its exact segment of the curve.
+   - Gridlines, baseline and the scrub guideline skip the labels'
+     measured bounding boxes: no line is ever drawn through text.
+   - Reduced motion or coarse pointer: one static final frame.
+   - All colours are read from base.css tokens at init — no literals.
+===================================================================== */
+(function () {
+  var hero = document.querySelector(".hero");
+  var stage = document.getElementById("heroStage");
+  var canvas = document.getElementById("heroCurveCanvas");
+  if (!hero || !stage || !canvas || !canvas.getContext) return;
+
+  var ctx = canvas.getContext("2d");
+  var milestones = [
+    document.getElementById("heroMs0"),
+    document.getElementById("heroMs1"),
+    document.getElementById("heroMs2")
+  ];
+  var terminal = document.getElementById("heroTerminal");
+  if (!milestones[0] || !milestones[1] || !milestones[2] || !terminal) return;
+
+  /* ------------------------------------------------------------------
+     Tokens → rgb strings. Every colour comes from base.css.
+     ------------------------------------------------------------------ */
+  function cssVar(name, fallback) {
+    var v = getComputedStyle(document.documentElement)
+      .getPropertyValue(name)
+      .trim();
+    return v || fallback;
+  }
+
+  function hexToRgb(hex) {
+    hex = hex.replace("#", "");
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    return (
+      parseInt(hex.substr(0, 2), 16) +
+      "," +
+      parseInt(hex.substr(2, 2), 16) +
+      "," +
+      parseInt(hex.substr(4, 2), 16)
+    );
+  }
+
+  var ACCENT = hexToRgb(cssVar("--color-accent", "#a84622"));
+  var ACCENT_DEEP = hexToRgb(cssVar("--color-accent-hover", "#8f3819"));
+  var INK = hexToRgb(cssVar("--color-accent-ink", "#7e351c"));
+  var MUTED = hexToRgb(cssVar("--color-text-muted", "#92949d"));
+  var GRID = hexToRgb(cssVar("--color-border", "#e8e8eb"));
+  var GROUND = hexToRgb(cssVar("--color-border-strong", "#d9dade"));
+
+  /* ------------------------------------------------------------------
+     Tuning
+     ------------------------------------------------------------------ */
+  var MS_NX = [0.46, 0.64, 0.82]; // milestone inflection positions
+  var PHASE_NAMES = ["Experimentation", "Learn", "Implement", "Grow"];
+  var STRAYS = 5;
+  var SEGS = 160;
+  var CURSOR_R = 120; // ripple reach, px
+  var CURSOR_PUSH = 14; // ripple strength, px
+  var DRAW_MS = 1500; // opening draw duration
+  var STRAY_LEAD_MS = 380; // strays fade in before the draw
+
+  var W = 0,
+    H = 0,
+    dpr = 1;
+  var strays = [];
+  var pointer = { x: -9999, y: -9999, inside: false };
+  var scrub = { x: -1 };
+  var rafId = null,
+    running = false;
+  var bornAt = -1,
+    introDone = false,
+    burstAt = -1;
+  var hotSeg = -1;
+  var stacked = false;
+  var gutter = 52;
+
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+  var stackQuery = window.matchMedia("(max-width: 1120px)");
+
+  /* ------------------------------------------------------------------
+     Maths + geometry
+     ------------------------------------------------------------------ */
+  function smooth(t) {
+    return t * t * (3 - 2 * t);
+  }
+  function clamp(v, a, b) {
+    return Math.min(Math.max(v, a), b);
+  }
+  function easeInOut(t) {
+    t = clamp(t, 0, 1);
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  }
+
+  /* The stage is full-bleed, so the plot is measured off the viewport, not
+     off the centred container the copy sits in. Both ends stop at the site's
+     own gutter (--container-padding, which already narrows on phones), which
+     is what lets the summit finish beside the right edge instead of a long
+     way inside it. Nothing here is a fixed pixel width, so the curve keeps
+     the same relationship to the edges at every size. */
+  function plot() {
+    return {
+      left: gutter,
+      right: W - gutter,
+      top: stacked ? 60 : 100,
+      bottom: H - (stacked ? 66 : 80)
+    };
+  }
+
+  /* Value shape: quiet floor, then three inflections — one per
+     division — each steeper than the last. Pure shape, no data. */
+  function valueAt(nx) {
+    var v = 0.05 + 0.02 * smooth(clamp(nx / 0.4, 0, 1));
+    v += 0.16 * smooth(clamp((nx - MS_NX[0]) / (MS_NX[1] - MS_NX[0]), 0, 1));
+    v += 0.28 * smooth(clamp((nx - MS_NX[1]) / (MS_NX[2] - MS_NX[1]), 0, 1));
+    v += 0.44 * Math.pow(clamp((nx - MS_NX[2]) / (1 - MS_NX[2]), 0, 1), 1.55);
+    return v; /* 0.05 → ~0.95 */
+  }
+
+  function xAt(nx, p) {
+    return p.left + nx * (p.right - p.left);
+  }
+  function yAt(nx, p) {
+    return p.bottom - valueAt(nx) * (p.bottom - p.top);
+  }
+  function widthAt(nx) {
+    return 1.7 + 2.1 * smooth(nx); /* ribbon thickens as value compounds */
+  }
+
+  function build() {
+    stacked = stackQuery.matches;
+    /* Read once per layout rather than per frame. It is the same token the
+       site's container uses, so the plot's edges track the site's gutter. */
+    gutter = parseFloat(cssVar("--container-padding", "52px")) || 52;
+    var rect = stage.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = rect.width;
+    H = rect.height;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    strays = [];
+    for (var i = 0; i < STRAYS; i++) {
+      strays.push({
+        lane: (i + 1) / (STRAYS + 1),
+        f: 1.6 + Math.random() * 2.2,
+        p: Math.random() * Math.PI * 2,
+        drift: 0.3 + Math.random() * 0.4,
+        end: 0.42 * (0.7 + Math.random() * 0.5)
+      });
+    }
+    positionMarkers();
+  }
+
+  /* Milestones + terminal are DOM — placed onto the curve; each label
+     is rotated to the curve's local slope so it rides the line. */
+  function positionMarkers() {
+    var p = plot();
+    for (var i = 0; i < milestones.length; i++) {
+      var nx = MS_NX[i];
+      var ms = milestones[i];
+      ms.style.left = xAt(nx, p) + "px";
+      ms.style.top = yAt(nx, p) + "px";
+      var e = 0.02;
+      var dx = xAt(nx + e, p) - xAt(nx - e, p);
+      var dy = yAt(nx + e, p) - yAt(nx - e, p);
+      ms.style.transform = "rotate(" + Math.atan2(dy, dx) + "rad)";
+    }
+    terminal.style.left = xAt(1, p) + 6 + "px";
+    terminal.style.top = yAt(1, p) + "px";
+  }
+
+  /* ------------------------------------------------------------------
+     Text protection: measured label boxes; lines are drawn in
+     segments that skip them.
+     ------------------------------------------------------------------ */
+  function labelRects() {
+    var sr = stage.getBoundingClientRect();
+    var rects = [];
+
+    function add(el, padX, padY) {
+      if (!el) return;
+      var r = el.getBoundingClientRect();
+      if (!r.width && !r.height) return;
+      rects.push({
+        left: r.left - sr.left - padX,
+        right: r.right - sr.left + padX,
+        top: r.top - sr.top - padY,
+        bottom: r.bottom - sr.top + padY
+      });
+    }
+
+    for (var i = 0; i < milestones.length; i++) {
+      add(milestones[i].querySelector(".ms__label"), 10, 6);
+    }
+    /* The summit chip needs the same protection the milestone labels get —
+       no line is drawn through any of them. */
+    add(terminal, 10, 6);
+    return rects;
+  }
+
+  function drawHAvoid(y, x0, x1, rects) {
+    var blocks = [];
+    for (var i = 0; i < rects.length; i++) {
+      var r = rects[i];
+      if (y > r.top && y < r.bottom) blocks.push([r.left, r.right]);
+    }
+    blocks.sort(function (a, b) {
+      return a[0] - b[0];
+    });
+    ctx.beginPath();
+    var cur = x0;
+    for (var b = 0; b < blocks.length; b++) {
+      var bs = Math.max(blocks[b][0], x0),
+        be = Math.min(blocks[b][1], x1);
+      if (be <= cur) continue;
+      if (bs > cur) {
+        ctx.moveTo(cur, y);
+        ctx.lineTo(bs, y);
+      }
+      cur = Math.max(cur, be);
+    }
+    if (cur < x1) {
+      ctx.moveTo(cur, y);
+      ctx.lineTo(x1, y);
+    }
+    ctx.stroke();
+  }
+
+  function drawVAvoid(x, y0, y1, rects) {
+    var blocks = [];
+    for (var i = 0; i < rects.length; i++) {
+      var r = rects[i];
+      if (x > r.left && x < r.right) blocks.push([r.top, r.bottom]);
+    }
+    blocks.sort(function (a, b) {
+      return a[0] - b[0];
+    });
+    ctx.beginPath();
+    var cur = y0;
+    for (var b = 0; b < blocks.length; b++) {
+      var bs = Math.max(blocks[b][0], y0),
+        be = Math.min(blocks[b][1], y1);
+      if (be <= cur) continue;
+      if (bs > cur) {
+        ctx.moveTo(x, cur);
+        ctx.lineTo(x, bs);
+      }
+      cur = Math.max(cur, be);
+    }
+    if (cur < y1) {
+      ctx.moveTo(x, cur);
+      ctx.lineTo(x, y1);
+    }
+    ctx.stroke();
+  }
+
+  /* ------------------------------------------------------------------
+     Interaction + curve sampling
+     ------------------------------------------------------------------ */
+  function ripple(x, y) {
+    if (!pointer.inside) return 0;
+    var dx = x - pointer.x,
+      dy = y - pointer.y;
+    var d2 = dx * dx + dy * dy;
+    if (d2 >= CURSOR_R * CURSOR_R) return 0;
+    var fall = 1 - Math.sqrt(d2) / CURSOR_R;
+    return (dy >= 0 ? 1 : -1) * fall * fall * CURSOR_PUSH;
+  }
+
+  function curvePoints(p, time, prog) {
+    var pts = [];
+    var n = Math.max(2, Math.floor(SEGS * clamp(prog, 0, 1)) + 1);
+    for (var i = 0; i < n; i++) {
+      var nx = i / SEGS;
+      var x = xAt(nx, p);
+      var y = yAt(nx, p);
+      if (introDone) {
+        y += Math.sin(nx * Math.PI * 3 + time * 0.5) * 2 * (1 - nx * 0.6);
+      }
+      y += ripple(x, y);
+      pts.push({ x: x, y: y, nx: nx });
+    }
+    return pts;
+  }
+
+  function strokePath(pts) {
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  }
+
+  /* The tapered ribbon: a polygon offset above/below the spine by
+     half the local width, filled with the colour journey. */
+  function drawRibbon(pts, p) {
+    if (pts.length < 3) return;
+    var top = [],
+      bot = [];
+    for (var i = 0; i < pts.length; i++) {
+      var a = pts[Math.max(i - 1, 0)];
+      var b = pts[Math.min(i + 1, pts.length - 1)];
+      var dx = b.x - a.x,
+        dy = b.y - a.y;
+      var len = Math.sqrt(dx * dx + dy * dy) || 1;
+      var nxv = -dy / len,
+        nyv = dx / len;
+      var w = widthAt(pts[i].nx) / 2;
+      top.push({ x: pts[i].x + nxv * w, y: pts[i].y + nyv * w });
+      bot.push({ x: pts[i].x - nxv * w, y: pts[i].y - nyv * w });
+    }
+    var grad = ctx.createLinearGradient(p.left, 0, p.right, 0);
+    grad.addColorStop(0, "rgba(" + MUTED + ",0.55)");
+    grad.addColorStop(0.35, "rgba(" + ACCENT + ",0.9)");
+    grad.addColorStop(1, "rgba(" + ACCENT_DEEP + ",1)");
+    ctx.beginPath();
+    ctx.moveTo(top[0].x, top[0].y);
+    for (var t = 1; t < top.length; t++) ctx.lineTo(top[t].x, top[t].y);
+    for (var u = bot.length - 1; u >= 0; u--) ctx.lineTo(bot[u].x, bot[u].y);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  /* ------------------------------------------------------------------
+     Frame
+     ------------------------------------------------------------------ */
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    var time = t / 1000;
+    var p = plot();
+
+    /* Opening progress — once per pageview. */
+    var prog = 1;
+    if (!introDone) {
+      if (bornAt < 0) bornAt = t;
+      var elapsed = t - bornAt;
+      prog = easeInOut((elapsed - STRAY_LEAD_MS) / DRAW_MS);
+      for (var mi = 0; mi < milestones.length; mi++) {
+        if (prog >= MS_NX[mi]) milestones[mi].classList.add("is-in");
+      }
+      if (prog >= 1) {
+        terminal.classList.add("is-in");
+        if (burstAt < 0) burstAt = t;
+        if (t - burstAt > 900) introDone = true;
+      }
+    }
+    var strayAlpha = introDone
+      ? 1
+      : clamp((t - bornAt) / STRAY_LEAD_MS, 0, 1);
+
+    /* Gridlines — climb half only, never through label text. */
+    var rects = labelRects();
+    var gridStartX = xAt(0.42, p);
+    ctx.strokeStyle = "rgba(" + GRID + ",0.8)";
+    ctx.lineWidth = 1;
+    for (var g = 1; g <= 3; g++) {
+      var gy = p.top + ((p.bottom - p.top) * g) / 4;
+      drawHAvoid(gy, gridStartX, p.right, rects);
+    }
+
+    /* Baseline with milestone ticks — the chart's ground. It runs the full
+       gutter-to-gutter width and skips any label boxes the same way the
+       gridlines do. */
+    ctx.strokeStyle = "rgba(" + GROUND + ",0.9)";
+    drawHAvoid(p.bottom + 14, p.left, p.right, rects);
+    for (var ti = 0; ti < MS_NX.length; ti++) {
+      var tkx = xAt(MS_NX[ti], p);
+      ctx.beginPath();
+      ctx.moveTo(tkx, p.bottom + 10);
+      ctx.lineTo(tkx, p.bottom + 18);
+      ctx.stroke();
+    }
+
+    var pts = curvePoints(p, time, prog);
+
+    /* Strays: absorbed into the spine as it forms. */
+    for (var i = 0; i < strays.length; i++) {
+      var st = strays[i];
+      ctx.beginPath();
+      var started = false;
+      for (var s = 0; s <= SEGS; s++) {
+        var nx = s / SEGS;
+        if (nx > st.end || nx > prog) break;
+        var x = xAt(nx, p);
+        var merge = smooth(clamp(nx / st.end, 0, 1));
+        var floorY =
+          p.bottom - (0.02 + st.lane * 0.1) * (p.bottom - p.top);
+        var wob =
+          Math.sin(nx * Math.PI * 2 * st.f + time * st.drift + st.p) *
+          6 *
+          (1 - merge);
+        var y = floorY + (yAt(nx, p) - floorY) * merge + wob + ripple(x, floorY);
+        if (started) ctx.lineTo(x, y);
+        else ctx.moveTo(x, y);
+        started = true;
+      }
+      ctx.strokeStyle =
+        "rgba(" + MUTED + "," + (0.3 - i * 0.03) * strayAlpha + ")";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      /* The wire lives on: a faint filament braided around the spine,
+         weaving close through the climb and converging at the summit.
+         The experiments are aligned and carried, not discarded. */
+      if (i % 2 === 0 && pts.length > 2) {
+        ctx.beginPath();
+        var fStarted = false;
+        var startIdx = Math.ceil(st.end * SEGS);
+        for (var fj = startIdx; fj < pts.length; fj++) {
+          var fnx = pts[fj].nx;
+          var uu = clamp((fnx - st.end) / (1 - st.end), 0, 1);
+          var env = Math.sin(Math.PI * uu); /* 0 → bloom → 0 */
+          var weave =
+            Math.sin(
+              fnx * Math.PI * 2 * st.f * 0.8 + time * st.drift * 0.6 + st.p
+            ) *
+            6.5 *
+            env;
+          var fy = pts[fj].y + weave;
+          if (fStarted) ctx.lineTo(pts[fj].x, fy);
+          else ctx.moveTo(pts[fj].x, fy);
+          fStarted = true;
+        }
+        ctx.strokeStyle = "rgba(" + MUTED + "," + 0.16 * strayAlpha + ")";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+
+    /* Soft fill under the climb. The tint is its own layer: once the curve
+       has finished drawing, it carries on past the summit at that height and
+       runs off the right edge of the viewport, so the colour bleeds off the
+       screen instead of stopping on a vertical seam at the plot boundary.
+       The curve, its nodes and the summit are untouched by this — only the
+       polygon's closing edge moves. */
+    if (pts.length > 2 && pts[pts.length - 1].nx > MS_NX[0]) {
+      var fillEnd = pts[pts.length - 1];
+      var bleedX = fillEnd.nx >= 1 ? W + 2 : fillEnd.x;
+      ctx.beginPath();
+      var f0i = Math.ceil(MS_NX[0] * SEGS);
+      ctx.moveTo(pts[Math.min(f0i, pts.length - 1)].x, p.bottom);
+      for (var fi = f0i; fi < pts.length; fi++) {
+        ctx.lineTo(pts[fi].x, pts[fi].y);
+      }
+      ctx.lineTo(bleedX, fillEnd.y);
+      ctx.lineTo(bleedX, p.bottom);
+      ctx.closePath();
+      var fillGrad = ctx.createLinearGradient(0, p.top, 0, p.bottom);
+      fillGrad.addColorStop(0, "rgba(" + ACCENT + ",0.07)");
+      fillGrad.addColorStop(1, "rgba(" + ACCENT + ",0)");
+      ctx.fillStyle = fillGrad;
+      ctx.fill();
+    }
+
+    /* One glow pass beneath the ribbon — no per-segment shadows. */
+    strokePath(pts);
+    ctx.strokeStyle = "rgba(" + ACCENT + ",0.10)";
+    ctx.lineWidth = 9;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.stroke();
+
+    drawRibbon(pts, p);
+
+    /* Hot segment: the division under hover claims its stretch. */
+    if (hotSeg >= 0 && introDone) {
+      var h0 = MS_NX[hotSeg];
+      var h1 = hotSeg < 2 ? MS_NX[hotSeg + 1] : 1;
+      var hp = [];
+      for (var hi = 0; hi < pts.length; hi++) {
+        if (pts[hi].nx >= h0 && pts[hi].nx <= h1) hp.push(pts[hi]);
+      }
+      if (hp.length > 1) {
+        strokePath(hp);
+        ctx.strokeStyle = "rgba(" + ACCENT_DEEP + ",0.35)";
+        ctx.lineWidth = widthAt(h1) + 5;
+        ctx.lineCap = "round";
+        ctx.stroke();
+      }
+    }
+
+    /* Comet tip during the opening draw. */
+    if (!introDone && prog > 0 && prog < 1 && pts.length > 1) {
+      var tip = pts[pts.length - 1];
+      var halo = ctx.createRadialGradient(tip.x, tip.y, 0, tip.x, tip.y, 26);
+      halo.addColorStop(0, "rgba(" + ACCENT + ",0.35)");
+      halo.addColorStop(1, "rgba(" + ACCENT + ",0)");
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(tip.x, tip.y, 26, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(tip.x, tip.y, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(tip.x, tip.y, 3.5, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgb(" + ACCENT + ")";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    /* Summit: one-time double ring burst, then a calm pulse. */
+    var sx = xAt(1, p),
+      sy = yAt(1, p);
+    if (prog >= 1) {
+      ctx.beginPath();
+      ctx.arc(sx, sy, 4, 0, Math.PI * 2);
+      ctx.fillStyle = "rgb(" + ACCENT_DEEP + ")";
+      ctx.fill();
+
+      if (burstAt > 0 && t - burstAt < 900) {
+        for (var ring = 0; ring < 2; ring++) {
+          var bt = clamp((t - burstAt - ring * 160) / 700, 0, 1);
+          if (bt > 0 && bt < 1) {
+            ctx.beginPath();
+            ctx.arc(sx, sy, 6 + bt * 30, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(" + ACCENT + "," + 0.35 * (1 - bt) + ")";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+        }
+      } else {
+        var pulse = (Math.sin(time * 1.5) + 1) / 2;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 8 + pulse * 4, 0, Math.PI * 2);
+        ctx.strokeStyle =
+          "rgba(" + ACCENT + "," + (0.28 - pulse * 0.14) + ")";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+
+    /* Scrub: eased guideline + dot + the phase you're standing in. */
+    if (introDone && pointer.inside && !stacked) {
+      var target = clamp(pointer.x, p.left, p.right);
+      scrub.x = scrub.x < 0 ? target : scrub.x + (target - scrub.x) * 0.18;
+      var snx = (scrub.x - p.left) / (p.right - p.left);
+      var scy = yAt(snx, p);
+
+      ctx.strokeStyle = "rgba(" + ACCENT + ",0.13)";
+      ctx.setLineDash([3, 5]);
+      drawVAvoid(scrub.x, p.top - 4, p.bottom + 10, rects);
+      ctx.setLineDash([]);
+
+      ctx.beginPath();
+      ctx.arc(scrub.x, scy, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.strokeStyle = "rgb(" + ACCENT + ")";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      /* The phase caption rides the axis strip, below the baseline. At the
+         top of the plot it shared a band with the badge and the headline,
+         and since the canvas sits below the copy it was the caption that
+         lost — the copy simply covered it. Down here it belongs to the
+         axis, tracks the cursor across the whole width, and nothing can be
+         drawn or laid out over it. */
+      var phase = PHASE_NAMES[0];
+      if (snx >= MS_NX[2]) phase = PHASE_NAMES[3];
+      else if (snx >= MS_NX[1]) phase = PHASE_NAMES[2];
+      else if (snx >= MS_NX[0]) phase = PHASE_NAMES[1];
+      ctx.font = '500 9px "Spline Sans Mono", monospace';
+      try {
+        ctx.letterSpacing = "1.2px";
+      } catch (e) {}
+      ctx.fillStyle = "rgb(" + INK + ")";
+      var label = phase.toUpperCase();
+      var tw = ctx.measureText(label).width;
+      var lx = clamp(scrub.x + 10, p.left, p.right - tw - 4);
+      ctx.fillText(label, lx, p.bottom + 30);
+    } else {
+      scrub.x = -1;
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Lifecycle
+     ------------------------------------------------------------------ */
+  function finalFrame() {
+    introDone = true;
+    for (var i = 0; i < milestones.length; i++) {
+      milestones[i].classList.add("is-in");
+    }
+    terminal.classList.add("is-in");
+    draw(1e7);
+  }
+
+  function loop(t) {
+    draw(t);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function start() {
+    if (running) return;
+    if (reduceMotion.matches || !finePointer.matches) {
+      finalFrame();
+      return;
+    }
+    running = true;
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function stop() {
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+
+  hero.addEventListener("pointermove", function (e) {
+    var rect = stage.getBoundingClientRect();
+    pointer.x = e.clientX - rect.left;
+    pointer.y = e.clientY - rect.top;
+    pointer.inside =
+      pointer.x >= 0 && pointer.y >= 0 && pointer.x <= W && pointer.y <= H;
+  });
+  hero.addEventListener("pointerleave", function () {
+    pointer.inside = false;
+    pointer.x = pointer.y = -9999;
+  });
+
+  milestones.forEach(function (ms, i) {
+    ms.addEventListener("pointerenter", function () {
+      hotSeg = i;
+    });
+    ms.addEventListener("pointerleave", function () {
+      hotSeg = -1;
+    });
+  });
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      function (entries) {
+        if (entries[0].isIntersecting) start();
+        else stop();
+      },
+      { threshold: 0.05 }
+    ).observe(stage);
+  } else {
+    start();
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) stop();
+    else start();
+  });
+
+  if (reduceMotion.addEventListener) {
+    reduceMotion.addEventListener("change", function () {
+      stop();
+      build();
+      start();
+    });
+  }
+
+  var resizeTimer;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      stop();
+      build();
+      /* After a resize, never replay the intro. */
+      if (introDone || bornAt > 0) {
+        bornAt = -1;
+        introDone = true;
+        burstAt = 1;
+      }
+      start();
+    }, 150);
+  });
+
+  build();
+  start();
 })();

@@ -60,7 +60,43 @@
 
   <!-- Hero -->
   <section class="hero" aria-labelledby="hero-title">
-    <div class="container hero__grid">
+    <!-- The value curve. The three divisions sit ON the curve at their
+         inflection points; the stage is full-bleed behind the copy on desktop
+         and becomes its own block below the copy once the layout stacks.
+         Deliberately outside the .reveal system — the curve has its own
+         entrance and draws itself once per pageview. -->
+    <div class="hero__stage" id="heroStage">
+      <canvas class="hero__canvas" id="heroCurveCanvas" aria-hidden="true"></canvas>
+      <div class="hero__scrim" aria-hidden="true"></div>
+
+      <a class="ms" href="#academy" id="heroMs0">
+        <span class="ms__dot" aria-hidden="true"></span>
+        <span class="ms__label">
+          <strong class="ms__name">Academy</strong>
+          <span class="ms__phase">Learn</span>
+        </span>
+      </a>
+      <a class="ms" href="#transform" id="heroMs1">
+        <span class="ms__dot" aria-hidden="true"></span>
+        <span class="ms__label">
+          <strong class="ms__name">Transform</strong>
+          <span class="ms__phase">Implement</span>
+        </span>
+      </a>
+      <a class="ms" href="#discover" id="heroMs2">
+        <span class="ms__dot" aria-hidden="true"></span>
+        <span class="ms__label">
+          <strong class="ms__name">Discover</strong>
+          <span class="ms__phase">Grow</span>
+        </span>
+      </a>
+
+      <span class="terminal" id="heroTerminal" aria-hidden="true">
+        <span class="terminal__dot"></span>Measurable value
+      </span>
+    </div>
+
+    <div class="container hero__inner">
       <div class="hero__copy">
         <p class="badge">AI transformation partner</p>
         <h1 class="hero__title" id="hero-title">Turn AI into measurable business <span class="accent">value.</span></h1>
@@ -70,59 +106,6 @@
           <a class="button button--secondary" href="#divisions" data-cta="hero-secondary">Explore ILORE</a>
         </div>
         <p class="hero__path"><span class="hero__path-dot" aria-hidden="true"></span>From AI experimentation to measurable business value</p>
-      </div>
-
-      <!-- The three divisions as one transformation signal: three upright
-           cards on a single connector line, ending at measurable value. -->
-      <div class="hero__visual reveal">
-        <div class="hero__aura" aria-hidden="true"></div>
-
-        <div class="signal">
-          <span class="signal__rail" aria-hidden="true"><span class="signal__pulse"></span></span>
-
-          <ul class="signal__steps" aria-label="The ILORE transformation system">
-            <li class="signal__step">
-              <a class="signal-card" href="#academy">
-                <span class="signal-card__main">
-                  <span class="signal-card__phase">Learn</span>
-                  <strong class="signal-card__name">Academy</strong>
-                  <span class="signal-card__role">Build AI capability</span>
-                </span>
-                <span class="signal-card__detail">AI literacy &middot; Leadership &middot; Responsible adoption</span>
-              </a>
-            </li>
-            <li class="signal__step">
-              <a class="signal-card" href="#transform">
-                <span class="signal-card__main">
-                  <span class="signal-card__phase">Implement</span>
-                  <strong class="signal-card__name">Transform</strong>
-                  <span class="signal-card__role">Build &amp; automate</span>
-                </span>
-                <span class="signal-card__detail">Strategy &middot; Automation &middot; AI agents &middot; Custom solutions</span>
-              </a>
-            </li>
-            <li class="signal__step">
-              <a class="signal-card" href="#discover">
-                <span class="signal-card__main">
-                  <span class="signal-card__phase">Grow</span>
-                  <strong class="signal-card__name">Discover</strong>
-                  <span class="signal-card__role">Improve visibility</span>
-                </span>
-                <span class="signal-card__detail">SEO &middot; AEO &middot; GEO &middot; Structured data</span>
-              </a>
-            </li>
-          </ul>
-
-          <p class="hero__chip"><span class="hero__chip-dot" aria-hidden="true"></span>Measurable business value</p>
-        </div>
-
-        <p class="signal__caption">
-          <span class="signal__caption-title">One transformation system</span>
-          <span class="signal__caption-rule" aria-hidden="true"></span>
-          <span class="signal__pillar">People</span>
-          <span class="signal__pillar">Systems</span>
-          <span class="signal__pillar">Visibility</span>
-        </p>
       </div>
     </div>
   </section>
@@ -206,7 +189,6 @@
         <p class="eyebrow">ILORE Academy</p>
         <h2 class="split__title" id="academy-title">Build AI capability across your organization.</h2>
         <p class="split__lede">Practical AI education for your workforce and leadership — building the knowledge and confidence required for responsible adoption.</p>
-        <a class="link-more split__cta" href="assessment.html?intent=academy" data-cta="academy-cta">Discuss an education program <span class="link-more__arrow" aria-hidden="true">&rarr;</span></a>
       </div>
 
       <div class="panel panel--tabs reveal">
@@ -255,7 +237,6 @@
         <p class="eyebrow">ILORE Transform</p>
         <h2 class="split__title" id="transform-title">Turn AI opportunities into working systems.</h2>
         <p class="split__lede">Five services that meet you wherever you are — from understanding your AI readiness to running solutions built for your organization.</p>
-        <a class="link-more split__cta" href="assessment.html?intent=transform" data-cta="transform-cta">Discuss AI opportunities <span class="link-more__arrow" aria-hidden="true">&rarr;</span></a>
       </div>
 
       <div class="panel panel--flow reveal">
@@ -332,7 +313,6 @@
         <p class="eyebrow">ILORE Discover</p>
         <h2 class="split__title" id="discover-title">Be found wherever your customers search.</h2>
         <p class="split__lede">From Google to AI assistants, ILORE improves how your organization is discovered and understood across traditional search and AI-powered discovery.</p>
-        <a class="link-more split__cta" href="assessment.html?intent=discover" data-cta="discover-cta">Improve your visibility <span class="link-more__arrow" aria-hidden="true">&rarr;</span></a>
       </div>
 
       <div class="panel discover-stack reveal">
