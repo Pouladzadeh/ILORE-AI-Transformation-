@@ -522,19 +522,15 @@
    any change in the height of the interactive panel on the right moved the
    left column by half the difference, so switching an Academy tab or opening
    a different Transform service made the whole section appear to shift.
-   `start` only changes where each column sits inside its grid area — the area
-   itself is still the full height of the row, so the sticky intro below keeps
-   the same room to travel. */
+   The intro column itself is deliberately not sticky: pinning it made the copy
+   travel against the panel beside it as the section passed, which read as
+   instability rather than as emphasis. It scrolls with the page like any other
+   section, so all three division sections behave identically. */
 .split {
   display: grid;
   grid-template-columns: minmax(300px, 0.78fr) minmax(0, 1.22fr);
   gap: 76px;
   align-items: start;
-}
-
-.split__intro {
-  position: sticky;
-  top: calc(var(--header-height) + 40px);
 }
 
 .split__title {
@@ -928,24 +924,6 @@ html:not(.js) .flow__body-inner {
   justify-content: center;
 }
 
-.about__intro::before {
-  content: "";
-  position: absolute;
-  top: -40px;
-  right: -90px;
-  z-index: 0;
-  width: 560px;
-  height: 560px;
-  border-radius: 50%;
-  pointer-events: none;
-  background: radial-gradient(closest-side, #fbeee4 0%, rgba(251, 238, 228, 0) 70%);
-}
-
-.about__intro > * {
-  position: relative;
-  z-index: 1;
-}
-
 .about__title {
   max-width: 19ch;
   margin-top: 30px;
@@ -1106,10 +1084,6 @@ html:not(.js) .flow__body-inner {
   .split {
     grid-template-columns: 1fr;
     gap: 40px;
-  }
-
-  .split__intro {
-    position: static;
   }
 
   .about__grid {
