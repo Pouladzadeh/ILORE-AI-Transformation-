@@ -252,25 +252,25 @@ legend {
   padding-top: 0;
 }
 
-/* Section heading block: eyebrow to the left, headline to the right. */
+/* Section heading block: eyebrow stacked above the headline, both left-aligned. */
 .section-head {
   display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 40px;
+  flex-direction: column;
+  align-items: start;
+  gap: 14px;
   margin-bottom: 42px;
 }
 
 .section-head__title {
-  margin-top: 14px;
+  /* Keeps the headline compact; the <br> stays the only intended break. */
+  max-width: 42rem;
   font-size: clamp(2rem, 3vw, 2.75rem);
   line-height: 1.22;
 }
 
-/* Stack the eyebrow above the headline once there is no room beside it. */
 @media (max-width: 860px) {
   .section-head {
-    display: block;
+    gap: 12px;
     margin-bottom: 32px;
   }
 }
