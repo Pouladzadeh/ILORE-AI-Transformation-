@@ -219,6 +219,13 @@
   align-items: center;
   gap: 8px;
   transform: translate(-100%, -140%);
+  /* Script places the chip against the right end of the plot, so its
+     shrink-to-fit width is measured against what little room is left
+     between there and the edge — without this it wraps onto two lines.
+     The same reason .ms__label carries it. Widening runs leftwards,
+     since the translate hangs the chip off its own right edge, so the
+     inset from the viewport is unaffected. */
+  white-space: nowrap;
   padding: 9px 14px;
   border: 1px solid #e2c7ba;
   border-radius: var(--radius-pill);

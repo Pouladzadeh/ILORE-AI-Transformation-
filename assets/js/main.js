@@ -407,6 +407,21 @@
   var PHASE_NAMES = ["Experimentation", "Learn", "Implement", "Grow"];
   var STRAYS = 5;
   var SEGS = 160;
+  /* Beyond the summit the line keeps its own tangent, easing off over
+     TAIL_K of normalised width so it leaves the frame at the right edge
+     instead of stopping on a seam. Slope is read off valueAt's last term,
+     so the tail cannot drift out of step with the shape it continues. */
+  var TAIL_SLOPE = (0.44 * 1.55) / (1 - MS_NX[2]);
+  var TAIL_K = 0.05;
+  var TAIL_MS = 520; // the tail grows out of the summit as the burst rings do
+  /* The ruling belongs to the climb, not to the copy. It is worth nothing
+     left of GRID_IN and at full strength by GRID_FULL — which is Transform
+     — so the grid reads across Transform → Discover → the summit and the
+     headline, the lede and the buttons sit on clean paper. Both are
+     normalised positions, so the relationship holds at every width. */
+  var GRID_IN = 0.52;
+  var GRID_FULL = MS_NX[1];
+  var GRID_ALPHA = 0.65;
   var CURSOR_R = 120; // ripple reach, px
   var CURSOR_PUSH = 14; // ripple strength, px
   var DRAW_MS = 1500; // opening draw duration
@@ -445,12 +460,18 @@
     return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
   }
 
-  /* The stage is full-bleed, so the plot is measured off the viewport, not
-     off the centred container the copy sits in. Both ends stop at the site's
-     own gutter (--container-padding, which already narrows on phones), which
-     is what lets the summit finish beside the right edge instead of a long
-     way inside it. Nothing here is a fixed pixel width, so the curve keeps
-     the same relationship to the edges at every size. */
+  /* Two alignments, deliberately separate.
+
+     plot() is the CONTENT grid: it stops at the site's own gutter
+     (--container-padding, which already narrows on phones) at both ends.
+     Everything that carries meaning — the curve's shape, the milestone
+     anchors, the summit and the axis caption — is measured in this box, so
+     no label can ever be cropped and none of it moves.
+
+     The lines themselves are FULL BLEED. nxAtX() converts the viewport's
+     own edges back into the same normalised space, which lets the
+     gridlines, the baseline and the trajectory run to the screen without
+     the shape, the labels or the nodes shifting by a pixel. */
   function plot() {
     return {
       left: gutter,
@@ -460,9 +481,31 @@
     };
   }
 
+  function nxAtX(x, p) {
+    var span = p.right - p.left;
+    return span > 0 ? (x - p.left) / span : 0;
+  }
+
+  /* Sample index of a given nx, once the sample grid starts left of zero. */
+  function firstIndex(p) {
+    return Math.floor(nxAtX(0, p) * SEGS);
+  }
+  function indexOf(nx, p) {
+    return Math.ceil(nx * SEGS) - firstIndex(p);
+  }
+
   /* Value shape: quiet floor, then three inflections — one per
      division — each steeper than the last. Pure shape, no data. */
   function valueAt(nx) {
+    /* Past the summit: the same tangent, easing off. The shape inside the
+       plot is untouched; this only exists so the line can leave the frame.
+       Left of the plot every term below already clamps to zero, so the
+       quiet floor extends to the viewport edge on its own. */
+    if (nx > 1) {
+      return (
+        0.95 + TAIL_SLOPE * TAIL_K * (1 - Math.exp(-(nx - 1) / TAIL_K))
+      );
+    }
     var v = 0.05 + 0.02 * smooth(clamp(nx / 0.4, 0, 1));
     v += 0.16 * smooth(clamp((nx - MS_NX[0]) / (MS_NX[1] - MS_NX[0]), 0, 1));
     v += 0.28 * smooth(clamp((nx - MS_NX[1]) / (MS_NX[2] - MS_NX[1]), 0, 1));
@@ -476,8 +519,10 @@
   function yAt(nx, p) {
     return p.bottom - valueAt(nx) * (p.bottom - p.top);
   }
+  /* Clamped, so the full-bleed tails carry the stroke weight of the end
+     they continue rather than smooth()'s behaviour outside [0,1]. */
   function widthAt(nx) {
-    return 1.7 + 2.1 * smooth(nx); /* ribbon thickens as value compounds */
+    return 1.7 + 2.1 * smooth(clamp(nx, 0, 1)); /* thickens as value compounds */
   }
 
   function build() {
@@ -622,10 +667,21 @@
     return (dy >= 0 ? 1 : -1) * fall * fall * CURSOR_PUSH;
   }
 
-  function curvePoints(p, time, prog) {
+  /* Sampled from the viewport's left edge to wherever the drawing has
+     reached — one array, so the tails are the same ribbon rather than
+     patches stitched onto its ends. `reach` is the opening draw's head:
+     it runs the plot as before, then continues past the summit over
+     TAIL_MS while the burst rings expand, so nothing pops into place. */
+  function curvePoints(p, time, prog, reach) {
     var pts = [];
-    var n = Math.max(2, Math.floor(SEGS * clamp(prog, 0, 1)) + 1);
-    for (var i = 0; i < n; i++) {
+    var i0 = firstIndex(p);
+    /* Rounded outwards once the draw is past the summit, so the last
+       sample lands on or beyond the edge and the line has no short fall. */
+    var iEnd = Math.max(
+      i0 + 1,
+      prog < 1 ? Math.floor(reach * SEGS) : Math.ceil(reach * SEGS)
+    );
+    for (var i = i0; i <= iEnd; i++) {
       var nx = i / SEGS;
       var x = xAt(nx, p);
       var y = yAt(nx, p);
@@ -636,6 +692,28 @@
       pts.push({ x: x, y: y, nx: nx });
     }
     return pts;
+  }
+
+  /* The colour journey, re-expressed in viewport space. The three stops
+     land on exactly the same x they always did, so the ribbon inside the
+     plot is pixel-identical; the two added stops fade the lead-in out at
+     the left edge and hold the summit's colour out to the right one. */
+  function bleedGradient(stops) {
+    var g = ctx.createLinearGradient(0, 0, W, 0);
+    for (var i = 0; i < stops.length; i++) {
+      g.addColorStop(clamp(stops[i][0] / W, 0, 1), stops[i][1]);
+    }
+    return g;
+  }
+
+  function ribbonGradient(p) {
+    return bleedGradient([
+      [0, "rgba(" + MUTED + ",0)"],
+      [p.left, "rgba(" + MUTED + ",0.55)"],
+      [xAt(0.35, p), "rgba(" + ACCENT + ",0.9)"],
+      [p.right, "rgba(" + ACCENT_DEEP + ",1)"],
+      [W, "rgba(" + ACCENT_DEEP + ",1)"]
+    ]);
   }
 
   function strokePath(pts) {
@@ -662,10 +740,7 @@
       top.push({ x: pts[i].x + nxv * w, y: pts[i].y + nyv * w });
       bot.push({ x: pts[i].x - nxv * w, y: pts[i].y - nyv * w });
     }
-    var grad = ctx.createLinearGradient(p.left, 0, p.right, 0);
-    grad.addColorStop(0, "rgba(" + MUTED + ",0.55)");
-    grad.addColorStop(0.35, "rgba(" + ACCENT + ",0.9)");
-    grad.addColorStop(1, "rgba(" + ACCENT_DEEP + ",1)");
+    var grad = ribbonGradient(p);
     ctx.beginPath();
     ctx.moveTo(top[0].x, top[0].y);
     for (var t = 1; t < top.length; t++) ctx.lineTo(top[t].x, top[t].y);
@@ -702,21 +777,34 @@
       ? 1
       : clamp((t - bornAt) / STRAY_LEAD_MS, 0, 1);
 
-    /* Gridlines — climb half only, never through label text. */
+    /* Gridlines — the visualisation's own ruling, and only that. They
+       start out of nothing at GRID_IN and are at full strength by
+       Transform, so there is no edge to see and nothing is drawn behind
+       the copy; from there they carry on to the screen with the curve.
+       They still skip the measured label boxes. */
     var rects = labelRects();
-    var gridStartX = xAt(0.42, p);
-    ctx.strokeStyle = "rgba(" + GRID + ",0.8)";
+    var gridFrom = xAt(GRID_IN, p);
+    ctx.strokeStyle = bleedGradient([
+      [gridFrom, "rgba(" + GRID + ",0)"],
+      [xAt(GRID_FULL, p), "rgba(" + GRID + "," + GRID_ALPHA + ")"],
+      [W, "rgba(" + GRID + "," + GRID_ALPHA + ")"]
+    ]);
     ctx.lineWidth = 1;
     for (var g = 1; g <= 3; g++) {
       var gy = p.top + ((p.bottom - p.top) * g) / 4;
-      drawHAvoid(gy, gridStartX, p.right, rects);
+      drawHAvoid(gy, gridFrom, W, rects);
     }
 
-    /* Baseline with milestone ticks — the chart's ground. It runs the full
-       gutter-to-gutter width and skips any label boxes the same way the
-       gridlines do. */
-    ctx.strokeStyle = "rgba(" + GROUND + ",0.9)";
-    drawHAvoid(p.bottom + 14, p.left, p.right, rects);
+    /* Baseline with milestone ticks — the chart's ground, not ruling. It
+       belongs to the curve and behaves like it: full bleed to the right,
+       dissolving into the left edge over the gutter. It sits below the
+       whole copy block, so nothing of it passes behind the text. */
+    ctx.strokeStyle = bleedGradient([
+      [0, "rgba(" + GROUND + ",0)"],
+      [p.left, "rgba(" + GROUND + ",0.9)"],
+      [W, "rgba(" + GROUND + ",0.9)"]
+    ]);
+    drawHAvoid(p.bottom + 14, 0, W, rects);
     for (var ti = 0; ti < MS_NX.length; ti++) {
       var tkx = xAt(MS_NX[ti], p);
       ctx.beginPath();
@@ -725,14 +813,25 @@
       ctx.stroke();
     }
 
-    var pts = curvePoints(p, time, prog);
+    /* How far the line has been drawn. Inside the plot this is the opening
+       draw; once it lands, it carries on past the summit to the right edge
+       of the viewport over TAIL_MS, under the burst. */
+    var nxMax = nxAtX(W, p);
+    var tailProg = introDone
+      ? 1
+      : burstAt < 0
+        ? 0
+        : easeInOut((t - burstAt) / TAIL_MS);
+    var reach = prog < 1 ? prog : 1 + (nxMax - 1) * tailProg;
+    var pts = curvePoints(p, time, prog, reach);
 
-    /* Strays: absorbed into the spine as it forms. */
+    /* Strays: absorbed into the spine as it forms. They wander in from the
+       viewport edge and fade up out of it, so the floor has no start seam. */
     for (var i = 0; i < strays.length; i++) {
       var st = strays[i];
       ctx.beginPath();
       var started = false;
-      for (var s = 0; s <= SEGS; s++) {
+      for (var s = firstIndex(p); s <= SEGS; s++) {
         var nx = s / SEGS;
         if (nx > st.end || nx > prog) break;
         var x = xAt(nx, p);
@@ -748,8 +847,12 @@
         else ctx.moveTo(x, y);
         started = true;
       }
-      ctx.strokeStyle =
-        "rgba(" + MUTED + "," + (0.3 - i * 0.03) * strayAlpha + ")";
+      var strayA = (0.3 - i * 0.03) * strayAlpha;
+      ctx.strokeStyle = bleedGradient([
+        [0, "rgba(" + MUTED + ",0)"],
+        [p.left, "rgba(" + MUTED + "," + strayA + ")"],
+        [W, "rgba(" + MUTED + "," + strayA + ")"]
+      ]);
       ctx.lineWidth = 1;
       ctx.stroke();
 
@@ -759,9 +862,12 @@
       if (i % 2 === 0 && pts.length > 2) {
         ctx.beginPath();
         var fStarted = false;
-        var startIdx = Math.ceil(st.end * SEGS);
+        var startIdx = Math.max(0, indexOf(st.end, p));
         for (var fj = startIdx; fj < pts.length; fj++) {
           var fnx = pts[fj].nx;
+          /* The filaments converge at the summit and end there — they must
+             not ride the tail out as a grey line over the accent. */
+          if (fnx > 1) break;
           var uu = clamp((fnx - st.end) / (1 - st.end), 0, 1);
           var env = Math.sin(Math.PI * uu); /* 0 → bloom → 0 */
           var weave =
@@ -781,17 +887,16 @@
       }
     }
 
-    /* Soft fill under the climb. The tint is its own layer: once the curve
-       has finished drawing, it carries on past the summit at that height and
-       runs off the right edge of the viewport, so the colour bleeds off the
-       screen instead of stopping on a vertical seam at the plot boundary.
-       The curve, its nodes and the summit are untouched by this — only the
-       polygon's closing edge moves. */
+    /* Soft fill under the climb — the tint. It follows the line out to the
+       viewport's right edge and closes 2px past it, so the colour bleeds off
+       the screen instead of stopping on a vertical seam. It still starts at
+       the first milestone: the tint belongs to the climb, not to the floor,
+       and letting it run left as well would put a wash behind the copy. */
     if (pts.length > 2 && pts[pts.length - 1].nx > MS_NX[0]) {
       var fillEnd = pts[pts.length - 1];
       var bleedX = fillEnd.nx >= 1 ? W + 2 : fillEnd.x;
       ctx.beginPath();
-      var f0i = Math.ceil(MS_NX[0] * SEGS);
+      var f0i = Math.max(0, indexOf(MS_NX[0], p));
       ctx.moveTo(pts[Math.min(f0i, pts.length - 1)].x, p.bottom);
       for (var fi = f0i; fi < pts.length; fi++) {
         ctx.lineTo(pts[fi].x, pts[fi].y);
@@ -806,9 +911,15 @@
       ctx.fill();
     }
 
-    /* One glow pass beneath the ribbon — no per-segment shadows. */
+    /* One glow pass beneath the ribbon — no per-segment shadows. It runs
+       the full bleed with the line, at the same restrained 0.10, and fades
+       out with the lead-in rather than ending on the gutter. */
     strokePath(pts);
-    ctx.strokeStyle = "rgba(" + ACCENT + ",0.10)";
+    ctx.strokeStyle = bleedGradient([
+      [0, "rgba(" + ACCENT + ",0)"],
+      [p.left, "rgba(" + ACCENT + ",0.10)"],
+      [W, "rgba(" + ACCENT + ",0.10)"]
+    ]);
     ctx.lineWidth = 9;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
@@ -887,9 +998,12 @@
 
     /* Scrub: eased guideline + dot + the phase you're standing in. */
     if (introDone && pointer.inside && !stacked) {
+      /* Held to the plot rather than the bleed: the guideline is the one
+         other vertical the hero draws, and it has no business running out
+         to the screen edges. */
       var target = clamp(pointer.x, p.left, p.right);
       scrub.x = scrub.x < 0 ? target : scrub.x + (target - scrub.x) * 0.18;
-      var snx = (scrub.x - p.left) / (p.right - p.left);
+      var snx = nxAtX(scrub.x, p);
       var scy = yAt(snx, p);
 
       ctx.strokeStyle = "rgba(" + ACCENT + ",0.13)";
