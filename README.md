@@ -113,28 +113,72 @@ Only the answers this form collects are stored, and only on the visitor's
 device. Corrupt or wrongly-typed entries are discarded and the form starts
 clean rather than throwing. The key is removed after a successful submission.
 
-### Configuring `SUBMIT_ENDPOINT`
+### Deploying and delivery
 
-Delivery is off until you configure it. At the top of `assets/js/assessment.js`:
+The form POSTs to `/api/assess`, a Cloudflare Pages Function in
+`functions/api/assess.js` that validates the payload and forwards it to a
+Google Apps Script web app, which appends a row to a Google Sheet and sends
+the notification email.
 
-```js
-var SUBMIT_ENDPOINT = "";
+**Cloudflare Pages.** Connect the repository to a Pages project. Leave the
+build command empty and set the output directory to `/` (the repo root) — the
+site is static with no build step. Anything in `functions/` deploys
+automatically as Pages Functions, so `functions/api/assess.js` becomes
+`/api/assess` with no extra configuration.
+
+**Environment variables.** In Pages → Settings → Variables and Secrets, set:
+
+| Name                | Value                                        |
+| ------------------- | -------------------------------------------- |
+| `SHEET_WEBHOOK_URL` | The Apps Script "Web app" URL (ends in `/exec`) |
+| `SHEET_WEBHOOK_KEY` | Shared secret matching `SECRET` in `Code.gs` — mark as **Secret** |
+
+Until both are set, submissions get a 500 and the form shows its
+"delivery isn't configured" panel.
+
+**Google side.** Using `backend/apps-script/Code.gs`:
+
+1. Create a Google Sheet named "ILORE Assessments". Extensions → Apps Script.
+2. Paste `Code.gs`. Set `SECRET` and `NOTIFY_TO` at the top.
+3. Deploy → New deployment → Type: **Web app**. Execute as: **Me**.
+   Who has access: **Anyone**.
+4. Copy the Web app URL into Cloudflare as `SHEET_WEBHOOK_URL`, and `SECRET`
+   into `SHEET_WEBHOOK_KEY`.
+
+Re-deploy a new version in Apps Script after any edit to `Code.gs`.
+
+> `SECRET` in the committed copy is a placeholder. The real value lives only in
+> the Apps Script editor and in Cloudflare — never in this repository.
+
+**`NOTIFY_TO` is currently a test address.** It points at a personal Gmail so the
+pipeline can be proven end to end. Moving notifications to the ILORE inbox is a
+one-line change at the top of `Code.gs`, followed by a new Apps Script
+deployment version. Note that `MailApp` sends as the Google account that owns
+the deployment, so changing who *receives* mail is a one-liner, but changing who
+it is *sent from* means either a verified "Send mail as" alias on that account or
+a redeployment from the ILORE account — and a redeployment mints a new `/exec`
+URL, which means updating `SHEET_WEBHOOK_URL` and redeploying Pages.
+
+**Delivery is retried.** A network failure or an HTTP error from Apps Script is
+retried twice, at 300ms and 900ms, before the visitor is asked to try again — it
+covers a cold start or a transient blip. A refusal from Apps Script itself (a
+mismatched key, or a deployment that is not public and serves a sign-in page) is
+not retried, because a second attempt cannot succeed. In the rare case where the
+row is written but the response is lost, a retry can produce a duplicate row.
+
+**The visitor's IP is not forwarded.** `CF-IPCountry` and the user agent are
+recorded; `CF-Connecting-IP` deliberately is not, so no raw address is stored in
+the Sheet.
+
+**Local preview.**
+
+```sh
+npx wrangler pages dev . --binding SHEET_WEBHOOK_URL=… --binding SHEET_WEBHOOK_KEY=…
 ```
 
-Set it to your own URL (or a form service) and the form POSTs the payload as
-JSON with `Content-Type: application/json`. The submit button is disabled while
-the request is in flight, a failed request restores the button and shows a
-retry message with the answers still saved, and only a successful response
-clears the saved state and shows the confirmation.
-
-While the endpoint is empty the form does **not** fake a confirmation. It keeps
-the payload under `ilore-assessment-last-submission`, logs it to the console,
-and shows a "submission isn't connected yet" panel with a way back to the
-answers.
-
-> **Never put API keys, tokens, or credentials in this file.** Everything in
-> `assets/js/` is served to every visitor. Keep secrets on the server behind
-> your endpoint.
+> **Never put API keys, tokens, or credentials in `assets/js/`.** Everything
+> there is served to every visitor. Keep secrets on the server behind the
+> Pages Function.
 
 A hidden honeypot field (`company_website`) silently drops automated
 submissions. It is positioned off-screen and excluded from the tab order — do

@@ -17,7 +17,7 @@
      served to every visitor. Point this at your own endpoint (or a form
      service) and keep secrets on the server side.
      ------------------------------------------------------------------------ */
-  var SUBMIT_ENDPOINT = "";
+  var SUBMIT_ENDPOINT = "/api/assess";
 
   var STORAGE_KEY = "ilore-assessment-v1";
   var LAST_SUBMISSION_KEY = "ilore-assessment-last-submission";
@@ -440,6 +440,53 @@
     };
   }
 
+  /* The server validates with the payload's key names; map any rejected
+     fields back to this form's validation keys and the step they live on. */
+  var SERVER_FIELD_MAP = {
+    sector: "industry",
+    organizationSize: "size",
+    aiStage: "stage",
+    mainChallenge: "challenge",
+    name: "name",
+    email: "email",
+    organization: "organization",
+    phone: "phone",
+    consent: "consent"
+  };
+
+  var FIELD_STEPS = {
+    industry: 0,
+    size: 0,
+    stage: 0,
+    challenge: 1,
+    name: 2,
+    email: 2,
+    organization: 2,
+    phone: 2,
+    consent: 3
+  };
+
+  function surfaceServerFieldErrors(fields) {
+    if (!Array.isArray(fields)) return false;
+
+    var mapped = [];
+    fields.forEach(function (field) {
+      var key = SERVER_FIELD_MAP[field];
+      if (key && mapped.indexOf(key) === -1) mapped.push(key);
+    });
+    if (!mapped.length) return false;
+
+    var earliest = mapped.reduce(function (min, key) {
+      return Math.min(min, FIELD_STEPS[key]);
+    }, STEP_COUNT - 1);
+
+    goToStep(earliest);
+    showErrors(mapped.filter(function (key) {
+      return FIELD_STEPS[key] === earliest;
+    }));
+    return true;
+  }
+
   function showOutcome(panelId) {
     form.hidden = true;
     $(panelId).classList.add("is-visible");
@@ -500,10 +547,32 @@
         body: JSON.stringify(payload)
       })
       .then(function (response) {
-        if (!response.ok) throw new Error("HTTP " + response.status);
-        track("assessment_submit_success");
-        clearSavedState();
-        showOutcome("successPanel");
+        if (response.ok) {
+          track("assessment_submit_success");
+          clearSavedState();
+          showOutcome("successPanel");
+          return;
+        }
+        if (response.status === 422) {
+          // The server names the fields it rejected; take the visitor back
+          // to them instead of a generic retry message when possible.
+          return response
+            .json()
+            .then(
+              function (body) { return body && body.fields; },
+              function () { return null; }
+            )
+            .then(function (fields) {
+              track("assessment_submit_error");
+              resetSubmitButton();
+              if (!surfaceServerFieldErrors(fields)) {
+                $("error-submit").classList.add("is-visible");
+                $("formStatus").textContent =
+                  "We couldn't send your request. Your answers are still saved on this device.";
+              }
+            });
+        }
+        throw new Error("HTTP " + response.status);
       })
       .catch(function (error) {
         console.error("Assessment submission failed:", error);
