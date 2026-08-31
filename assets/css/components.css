@@ -380,7 +380,7 @@
 
 .site-footer__grid {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr;
+  grid-template-columns: 1.4fr 1fr 1.2fr 1fr;
   gap: 40px;
   padding: 56px 0 44px;
 }
@@ -427,6 +427,12 @@
   border-top: 1px solid var(--color-border-strong);
   font-size: 12.5px;
   color: var(--color-text-muted);
+}
+
+@media (max-width: 980px) {
+  .site-footer__grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 720px) {

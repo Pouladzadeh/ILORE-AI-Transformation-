@@ -784,6 +784,12 @@ html:not(.js) .flow__body-inner {
   font-size: 13px;
 }
 
+/* A service row can carry two links (request + learn more); keep them
+   readable as separate actions. */
+.flow__body .link-more + .link-more {
+  margin-left: 22px;
+}
+
 /* --------------------------------------------------------------------------
    Discover — visibility layers
    -------------------------------------------------------------------------- */

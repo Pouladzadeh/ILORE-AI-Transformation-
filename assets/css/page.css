@@ -1,0 +1,279 @@
+/* ==========================================================================
+   ILORE — Inner pages (division and service pages)
+   Reuses the foundations (base.css), shared components (components.css) and
+   the home page's section, split, panel, flow and cta-band patterns
+   (home.css). This file only adds what those pages need: a compact page
+   hero with breadcrumbs, a readable prose column, a definition list and a
+   related-pages grid. Tokens only — no new colours or type styles.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Page hero
+   -------------------------------------------------------------------------- */
+.page-hero {
+  padding-block: 56px 48px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+}
+
+.page-hero__crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 26px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}
+
+.page-hero__crumbs a {
+  color: var(--color-text-secondary);
+}
+
+.page-hero__crumbs a:hover {
+  color: var(--color-accent);
+}
+
+.page-hero__crumbs li + li::before {
+  content: "/";
+  margin-right: 8px;
+  color: var(--color-border-strong);
+}
+
+.page-hero__crumbs li {
+  display: inline-flex;
+  align-items: center;
+}
+
+.page-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+  gap: 64px;
+  align-items: end;
+}
+
+.page-hero__title {
+  max-width: 16ch;
+  margin-top: 14px;
+  font-size: clamp(2.2rem, 3.6vw, 3.1rem);
+  line-height: 1.12;
+}
+
+/* The lede is the page's primary citable passage: a self-contained,
+   answer-first definition. Kept close to body size so it reads as an
+   answer, not a slogan. */
+.page-hero__lede {
+  max-width: 62ch;
+  margin-top: 20px;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.page-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+/* Facts panel: the page's key facts as a definition list, inside the
+   shared panel shell. */
+.facts {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.facts__row {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.facts__row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.facts__row:first-child {
+  padding-top: 0;
+}
+
+.facts__key {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding-top: 3px;
+}
+
+.facts__value {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.facts__value a {
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.facts__value a:hover {
+  color: var(--color-accent);
+  border-color: var(--color-border-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Prose sections — question heading + self-contained answer paragraphs
+   -------------------------------------------------------------------------- */
+.prose {
+  max-width: 68ch;
+}
+
+.prose__title {
+  max-width: 22ch;
+  font-size: clamp(1.5rem, 2.2vw, 1.9rem);
+  line-height: 1.25;
+}
+
+.prose p {
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.prose p:first-of-type {
+  margin-top: 18px;
+}
+
+.prose ul {
+  margin-top: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.prose li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+.prose li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.68em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.prose strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+/* Two prose blocks side by side inside one section. */
+.prose-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 64px;
+}
+
+/* --------------------------------------------------------------------------
+   Related pages
+   -------------------------------------------------------------------------- */
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.related-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px 22px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: inherit;
+  transition: transform var(--transition-hover), box-shadow var(--transition-hover), border-color var(--transition-hover);
+}
+
+.related-card:hover {
+  transform: translateY(var(--hover-lift));
+  box-shadow: var(--shadow-hover);
+  border-color: var(--color-hover-border);
+  color: inherit;
+}
+
+.related-card__kind {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.related-card__name {
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.related-card__text {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.related-card .link-more {
+  margin-top: auto;
+  min-height: 32px;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 1120px) {
+  .page-hero__grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    align-items: start;
+  }
+}
+
+@media (max-width: 900px) {
+  .prose-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 820px) {
+  .page-hero {
+    padding-block: 36px 34px;
+  }
+
+  .page-hero__crumbs {
+    margin-bottom: 18px;
+  }
+
+  .page-hero__lede {
+    font-size: 16px;
+  }
+
+  .facts__row {
+    grid-template-columns: 96px 1fr;
+    gap: 12px;
+  }
+}
