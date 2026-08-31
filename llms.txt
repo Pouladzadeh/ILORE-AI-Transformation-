@@ -1,0 +1,20 @@
+# ILORE
+
+> ILORE is an AI transformation company that helps organizations adopt, implement, automate, and scale AI responsibly. It operates through three divisions: ILORE Academy (AI education), ILORE Transform (AI strategy and implementation), and ILORE Discover (visibility across traditional search and AI-powered discovery).
+
+ILORE's approach: AI should become a practical business capability, not another isolated software tool. Divisions follow the sequence Learn (Academy) → Implement (Transform) → Grow (Discover).
+
+## Pages
+
+- [Home](https://www.ilore.ai/): Overview of the three divisions, services, mission, and frequently asked questions
+- [AI Opportunity Assessment](https://www.ilore.ai/assessment.html): Guided intake to evaluate an organization's AI maturity and identify opportunities — the usual starting point for an engagement
+
+## Services
+
+- ILORE Academy: AI Fundamentals, Generative AI, Prompt Engineering, Agentic AI; Microsoft Copilot, AI Productivity, Executive AI Leadership, Responsible AI; AI for Healthcare, AI for Education, AI for Government
+- ILORE Transform: AI Opportunity Assessment, AI Strategy Development, AI Process Automation, AI Agent Development, Custom AI Solutions
+- ILORE Discover: Knowledge Graph Development, Structured Data Implementation, AI-Friendly Website Optimization, SEO, Content Strategy, AEO, GEO, AI Search Optimization
+
+## Contact
+
+- Email: info@ilore.ai
