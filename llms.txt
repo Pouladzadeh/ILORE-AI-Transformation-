@@ -7,7 +7,21 @@ ILORE's approach: AI should become a practical business capability, not another 
 ## Pages
 
 - [Home](https://www.ilore.ai/): Overview of the three divisions, services, mission, and frequently asked questions
-- [AI Opportunity Assessment](https://www.ilore.ai/assessment.html): Guided intake to evaluate an organization's AI maturity and identify opportunities — the usual starting point for an engagement
+- [AI Opportunity Assessment (request)](https://www.ilore.ai/assessment.html): Guided intake to evaluate an organization's AI maturity and identify opportunities — the usual starting point for an engagement
+
+## Divisions
+
+- [ILORE Academy](https://www.ilore.ai/academy/): AI education for workforce and leadership — Core AI, Workplace AI, and Sector Programs
+- [ILORE Transform](https://www.ilore.ai/transform/): AI implementation — five services from assessment to custom solutions
+- [ILORE Discover](https://www.ilore.ai/discover/): Visibility across search and AI-powered discovery — knowledge infrastructure, SEO, AEO, GEO
+
+## Transform services
+
+- [AI Opportunity Assessment](https://www.ilore.ai/transform/ai-opportunity-assessment.html): Evaluates AI maturity and identifies opportunities
+- [AI Strategy Development](https://www.ilore.ai/transform/ai-strategy-development.html): Enterprise AI roadmaps aligned with business objectives
+- [AI Process Automation](https://www.ilore.ai/transform/ai-process-automation.html): Automates repetitive business processes using AI technologies
+- [AI Agent Development](https://www.ilore.ai/transform/ai-agent-development.html): Intelligent assistants that improve productivity and decision-making
+- [Custom AI Solutions](https://www.ilore.ai/transform/custom-ai-solutions.html): Tailored AI applications for specific organizational needs
 
 ## Services
 
