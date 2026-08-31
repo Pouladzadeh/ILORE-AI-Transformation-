@@ -139,9 +139,11 @@
      Transform accordion — one service open at a time
      ------------------------------------------------------------------------ */
   function initAccordion() {
-    var list = document.querySelector(".flow");
-    if (!list) return;
+    var lists = Array.prototype.slice.call(document.querySelectorAll(".flow"));
+    lists.forEach(initFlowList);
+  }
 
+  function initFlowList(list) {
     var items = Array.prototype.slice.call(list.querySelectorAll(".flow__item"));
     if (!items.length) return;
 
